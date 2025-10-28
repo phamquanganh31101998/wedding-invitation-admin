@@ -35,14 +35,16 @@ export default function DashboardPage() {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Header style={{
-        background: '#fff',
-        padding: '0 24px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-      }}>
+      <Header
+        style={{
+          background: '#fff',
+          padding: '0 24px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        }}
+      >
         <Title level={3} style={{ margin: 0, color: '#1890ff' }}>
           <HeartOutlined style={{ marginRight: 8 }} />
           Wedding Admin Panel
@@ -63,14 +65,25 @@ export default function DashboardPage() {
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <Card>
             <div style={{ textAlign: 'center', padding: '40px 20px' }}>
-              <HeartOutlined style={{ fontSize: 64, color: '#ff69b4', marginBottom: 24 }} />
+              <HeartOutlined
+                style={{ fontSize: 64, color: '#ff69b4', marginBottom: 24 }}
+              />
               <Title level={1}>Welcome to Wedding Admin Panel!</Title>
-              <Paragraph style={{ fontSize: 18, color: '#666', maxWidth: 600, margin: '0 auto' }}>
-                This is your wedding invitation administrator dashboard. 
-                Here you'll be able to manage invitations, track RSVPs, and handle all your wedding planning needs.
+              <Paragraph
+                style={{
+                  fontSize: 18,
+                  color: '#666',
+                  maxWidth: 600,
+                  margin: '0 auto',
+                }}
+              >
+                This is your wedding invitation administrator dashboard. Here
+                you&apos;ll be able to manage invitations, track RSVPs, and
+                handle all your wedding planning needs.
               </Paragraph>
               <Paragraph style={{ marginTop: 24, color: '#999' }}>
-                Features coming soon: Guest management, Invitation templates, RSVP tracking, and more!
+                Features coming soon: Guest management, Invitation templates,
+                RSVP tracking, and more!
               </Paragraph>
             </div>
           </Card>
