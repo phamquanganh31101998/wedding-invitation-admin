@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import { AntdRegistry } from '@ant-design/nextjs-registry';
 import { ConfigProvider } from 'antd';
 import AuthSessionProvider from '@/components/SessionProvider';
 import './globals.css';
@@ -21,17 +20,15 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <AuthSessionProvider>
-          <AntdRegistry>
-            <ConfigProvider
-              theme={{
-                token: {
-                  colorPrimary: '#1890ff',
-                },
-              }}
-            >
-              {children}
-            </ConfigProvider>
-          </AntdRegistry>
+          <ConfigProvider
+            theme={{
+              token: {
+                colorPrimary: '#1890ff',
+              },
+            }}
+          >
+            {children}
+          </ConfigProvider>
         </AuthSessionProvider>
       </body>
     </html>
