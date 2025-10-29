@@ -46,7 +46,6 @@ export default function DashboardPage() {
         }}
       >
         <Title level={3} style={{ margin: 0, color: '#1890ff' }}>
-          <HeartOutlined style={{ marginRight: 8 }} />
           Wedding Admin Panel
         </Title>
         <Space>

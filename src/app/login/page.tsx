@@ -20,7 +20,10 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const router = useRouter();
 
-  const handleSubmit = async (values: { username: string; password: string }) => {
+  const handleSubmit = async (values: {
+    username: string;
+    password: string;
+  }) => {
     setLoading(true);
     setError('');
 
@@ -47,13 +50,15 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    }}>
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      }}
+    >
       <Card style={{ width: 400, boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
           <Title level={2}>Wedding Admin</Title>
@@ -74,12 +79,23 @@ export default function LoginPage() {
           validationSchema={validationSchema}
           onSubmit={handleSubmit}
         >
-          {({ values, errors, touched, handleChange, handleBlur, handleSubmit }) => (
+          {({
+            values,
+            errors,
+            touched,
+            handleChange,
+            handleBlur,
+            handleSubmit,
+          }) => (
             <Form onFinish={handleSubmit} layout="vertical">
               <Form.Item
                 label="Username"
-                validateStatus={errors.username && touched.username ? 'error' : ''}
-                help={errors.username && touched.username ? errors.username : ''}
+                validateStatus={
+                  errors.username && touched.username ? 'error' : ''
+                }
+                help={
+                  errors.username && touched.username ? errors.username : ''
+                }
               >
                 <Input
                   name="username"
@@ -93,8 +109,12 @@ export default function LoginPage() {
 
               <Form.Item
                 label="Password"
-                validateStatus={errors.password && touched.password ? 'error' : ''}
-                help={errors.password && touched.password ? errors.password : ''}
+                validateStatus={
+                  errors.password && touched.password ? 'error' : ''
+                }
+                help={
+                  errors.password && touched.password ? errors.password : ''
+                }
               >
                 <Input.Password
                   name="password"
