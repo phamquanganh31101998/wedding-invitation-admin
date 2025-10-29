@@ -69,3 +69,7 @@ yarn add <package>   # Add new dependency
 - `.env.development.local` for local development
 - `.env.example` as template
 - Required variables: `NEXTAUTH_URL`, `NEXTAUTH_SECRET`, `DATABASE_URL`
+
+## Note
+
+- Don't create test files
