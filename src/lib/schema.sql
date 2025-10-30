@@ -48,6 +48,20 @@ CREATE TABLE IF NOT EXISTS guests (
   CONSTRAINT guests_attendance_check CHECK (attendance IN ('yes', 'no', 'maybe'))
 );
 
+-- Files table for tenant media (images, music, etc.)
+CREATE TABLE IF NOT EXISTS files (
+  id SERIAL PRIMARY KEY,
+  tenant_id INTEGER NOT NULL,
+  type VARCHAR(50) NOT NULL,
+  url TEXT NOT NULL,
+  name TEXT,
+  display_order INTEGER DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  
+  -- Foreign key constraint
+  CONSTRAINT files_tenant_id_fkey FOREIGN KEY (tenant_id) REFERENCES tenants (id) ON DELETE CASCADE
+);
+
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_tenants_is_active ON tenants USING BTREE (is_active);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_tenants_slug ON tenants USING BTREE (slug);
@@ -56,3 +70,5 @@ CREATE INDEX IF NOT EXISTS idx_guests_attendance ON guests USING BTREE (attendan
 CREATE INDEX IF NOT EXISTS idx_guests_submitted_at ON guests USING BTREE (submitted_at);
 CREATE INDEX IF NOT EXISTS idx_guests_tenant_id ON guests USING BTREE (tenant_id);
 CREATE UNIQUE INDEX IF NOT EXISTS guests_pkey ON guests USING BTREE (id);
+CREATE INDEX IF NOT EXISTS idx_files_tenant_id ON files USING BTREE (tenant_id);
+CREATE INDEX IF NOT EXISTS idx_files_type ON files USING BTREE (type);

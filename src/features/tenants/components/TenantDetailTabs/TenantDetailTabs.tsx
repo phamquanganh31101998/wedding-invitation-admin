@@ -5,6 +5,7 @@ import { TenantUI } from '@/types/tenant';
 import OverviewTab from './OverviewTab/OverviewTab';
 import ThemeTab from './ThemeTab/ThemeTab';
 import SettingsTab from './SettingsTab/SettingsTab';
+import FilesTab from './FilesTab/FilesTab';
 
 interface TenantDetailTabsProps {
   tenant: TenantUI;
@@ -16,6 +17,7 @@ interface TenantDetailTabsProps {
   onUpdateEditingValue: (field: string, value: any) => void;
   onSaveFieldUpdate: (field: string, value: any) => Promise<void>;
   onUpdateTenantStatus: (isActive: boolean) => Promise<void>;
+  onRefreshTenant?: () => void;
 }
 
 export default function TenantDetailTabs({
@@ -28,6 +30,7 @@ export default function TenantDetailTabs({
   onUpdateEditingValue,
   onSaveFieldUpdate,
   onUpdateTenantStatus,
+  onRefreshTenant,
 }: TenantDetailTabsProps) {
   const tabItems = [
     {
@@ -43,6 +46,16 @@ export default function TenantDetailTabs({
           onCancelEditing={onCancelEditing}
           onUpdateEditingValue={onUpdateEditingValue}
           onSaveFieldUpdate={onSaveFieldUpdate}
+        />
+      ),
+    },
+    {
+      key: 'files',
+      label: 'Media Files',
+      children: (
+        <FilesTab
+          tenant={tenant}
+          onFileUploadSuccess={onRefreshTenant}
         />
       ),
     },

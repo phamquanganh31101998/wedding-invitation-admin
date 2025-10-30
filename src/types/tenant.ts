@@ -56,6 +56,17 @@ export interface TenantUI {
   updatedAt: string;
 }
 
+// File types for tenant media
+export interface TenantFile {
+  id: number;
+  tenantId: number;
+  type: string;
+  url: string;
+  name?: string;
+  displayOrder: number;
+  createdAt: Date;
+}
+
 export interface TenantCreateRequestUI {
   slug: string;
   brideName: string;

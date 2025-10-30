@@ -262,6 +262,7 @@ export default function TenantDetailManagement({ tenantId }: TenantDetailManagem
           onUpdateEditingValue={updateEditingValue}
           onSaveFieldUpdate={saveFieldUpdate}
           onUpdateTenantStatus={updateTenantStatus}
+          onRefreshTenant={loadTenant}
         />
       </div>
     </div>
