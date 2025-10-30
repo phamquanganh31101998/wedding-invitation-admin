@@ -4,10 +4,9 @@ import { Field } from 'formik';
 interface BrideNameFieldProps {
   errors: any;
   touched: any;
-  onNameChange: (name: string) => void;
 }
 
-export default function BrideNameField({ errors, touched, onNameChange }: BrideNameFieldProps) {
+export default function BrideNameField({ errors, touched }: BrideNameFieldProps) {
   return (
     <div>
       <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>
@@ -19,10 +18,6 @@ export default function BrideNameField({ errors, touched, onNameChange }: BrideN
             {...field}
             placeholder="Enter bride's name"
             status={errors.brideName && touched.brideName ? 'error' : ''}
-            onChange={(e) => {
-              field.onChange(e);
-              onNameChange(e.target.value);
-            }}
           />
         )}
       </Field>

@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const slug = await tenantService.generateUniqueSlug(bride_name, groom_name);
+    const slug = await tenantService.generateSlug(bride_name, groom_name);
 
     return NextResponse.json({
       success: true,

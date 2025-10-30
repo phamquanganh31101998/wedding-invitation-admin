@@ -7,7 +7,6 @@ import {
   TenantListResponse,
   TenantFilters,
   Pagination,
-  ValidationResult,
   TenantErrorCode,
 } from '@/types/tenant';
 import {
@@ -16,6 +15,8 @@ import {
   validateTenantAccess,
   checkRateLimit,
 } from '@/lib/security/tenant-security';
+import { generateUniqueSlug } from '@/lib/utils/slug';
+import { validateTenantData } from '@/lib/validation/tenant-validation';
 
 export class TenantService {
   private tenantRepository: TenantRepository;
@@ -82,7 +83,7 @@ export class TenantService {
     await this.validateSecurityAndRateLimit('create_tenant');
 
     // Validate input data
-    const validation = await this.validateTenantData(data);
+    const validation = await validateTenantData(data);
     if (!validation.isValid) {
       throw new Error(
         `${TenantErrorCode.VALIDATION_ERROR}: ${JSON.stringify(validation.errors)}`
@@ -108,22 +109,6 @@ export class TenantService {
   }
 
   /**
-   * Get tenant by slug with security validation
-   */
-  async getTenantBySlug(slug: string): Promise<Tenant | null> {
-    await this.validateSecurityAndRateLimit('get_tenant');
-
-    if (!slug || slug.trim().length === 0) {
-      throw new Error(
-        `${TenantErrorCode.VALIDATION_ERROR}: Invalid tenant slug`
-      );
-    }
-
-    const secureRepository = await this.getSecureRepository();
-    return secureRepository.findBySlug(slug);
-  }
-
-  /**
    * Update tenant with validation and security checks
    */
   async updateTenant(id: number, data: TenantUpdateRequest): Promise<Tenant> {
@@ -134,7 +119,7 @@ export class TenantService {
     }
 
     // Validate update data
-    const validation = await this.validateTenantData(data, true);
+    const validation = await validateTenantData(data, true);
     if (!validation.isValid) {
       throw new Error(
         `${TenantErrorCode.VALIDATION_ERROR}: ${JSON.stringify(validation.errors)}`
@@ -230,165 +215,19 @@ export class TenantService {
   /**
    * Generate unique slug from bride and groom names
    */
-  async generateUniqueSlug(
-    brideName: string,
-    groomName: string
-  ): Promise<string> {
+  async generateSlug(brideName: string, groomName: string): Promise<string> {
     if (!brideName || !groomName) {
       throw new Error(
         `${TenantErrorCode.VALIDATION_ERROR}: Bride and groom names are required`
       );
     }
 
-    // This is handled internally by the repository
-    const tempData: TenantCreateRequest = {
-      bride_name: brideName,
-      groom_name: groomName,
-      wedding_date: '2024-01-01', // Temporary date for slug generation
-      venue_name: 'temp',
-      venue_address: 'temp',
-    };
-
     try {
-      // We'll extract the slug generation logic to a separate method
-      return this.createSlugFromNames(brideName, groomName);
+      return generateUniqueSlug(brideName, groomName);
     } catch (error) {
       throw new Error(
         `${TenantErrorCode.VALIDATION_ERROR}: Unable to generate slug`
       );
     }
-  }
-
-  /**
-   * Validate tenant data
-   */
-  async validateTenantData(
-    data: TenantCreateRequest | TenantUpdateRequest,
-    isUpdate: boolean = false
-  ): Promise<ValidationResult> {
-    const errors: Record<string, string> = {};
-
-    // Validate bride name
-    if (!isUpdate || data.bride_name !== undefined) {
-      if (!data.bride_name || data.bride_name.trim().length < 2) {
-        errors.bride_name = 'Bride name must be at least 2 characters long';
-      } else if (data.bride_name.length > 100) {
-        errors.bride_name = 'Bride name must not exceed 100 characters';
-      } else if (!/^[a-zA-Z\s\-']+$/.test(data.bride_name)) {
-        errors.bride_name =
-          'Bride name can only contain letters, spaces, hyphens, and apostrophes';
-      }
-    }
-
-    // Validate groom name
-    if (!isUpdate || data.groom_name !== undefined) {
-      if (!data.groom_name || data.groom_name.trim().length < 2) {
-        errors.groom_name = 'Groom name must be at least 2 characters long';
-      } else if (data.groom_name.length > 100) {
-        errors.groom_name = 'Groom name must not exceed 100 characters';
-      } else if (!/^[a-zA-Z\s\-']+$/.test(data.groom_name)) {
-        errors.groom_name =
-          'Groom name can only contain letters, spaces, hyphens, and apostrophes';
-      }
-    }
-
-    // Validate wedding date
-    if (!isUpdate || data.wedding_date !== undefined) {
-      if (!data.wedding_date) {
-        errors.wedding_date = 'Wedding date is required';
-      } else {
-        const weddingDate = new Date(data.wedding_date);
-        if (isNaN(weddingDate.getTime())) {
-          errors.wedding_date = 'Wedding date must be a valid date';
-        }
-      }
-    }
-
-    // Validate venue name
-    if (!isUpdate || data.venue_name !== undefined) {
-      if (!data.venue_name || data.venue_name.trim().length < 2) {
-        errors.venue_name = 'Venue name must be at least 2 characters long';
-      } else if (data.venue_name.length > 200) {
-        errors.venue_name = 'Venue name must not exceed 200 characters';
-      }
-    }
-
-    // Validate venue address
-    if (!isUpdate || data.venue_address !== undefined) {
-      if (!data.venue_address || data.venue_address.trim().length < 5) {
-        errors.venue_address =
-          'Venue address must be at least 5 characters long';
-      }
-    }
-
-    // Validate email if provided
-    if (
-      data.email !== undefined &&
-      data.email !== null &&
-      data.email.trim().length > 0
-    ) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(data.email)) {
-        errors.email = 'Email must be a valid email address';
-      }
-    }
-
-    // Validate phone if provided
-    if (
-      data.phone !== undefined &&
-      data.phone !== null &&
-      data.phone.trim().length > 0
-    ) {
-      const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
-      if (!phoneRegex.test(data.phone.replace(/[\s\-\(\)]/g, ''))) {
-        errors.phone = 'Phone number must be a valid format';
-      }
-    }
-
-    // Validate theme colors if provided
-    if (data.theme_primary_color !== undefined) {
-      if (!this.isValidHexColor(data.theme_primary_color)) {
-        errors.theme_primary_color =
-          'Primary color must be a valid hex color code';
-      }
-    }
-
-    if (data.theme_secondary_color !== undefined) {
-      if (!this.isValidHexColor(data.theme_secondary_color)) {
-        errors.theme_secondary_color =
-          'Secondary color must be a valid hex color code';
-      }
-    }
-
-    return {
-      isValid: Object.keys(errors).length === 0,
-      errors,
-    };
-  }
-
-  /**
-   * Create slug from names (utility method)
-   */
-  private createSlugFromNames(brideName: string, groomName: string): string {
-    const normalize = (name: string) =>
-      name
-        .toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-')
-        .trim();
-
-    const brideSlug = normalize(brideName);
-    const groomSlug = normalize(groomName);
-
-    return `${brideSlug}-${groomSlug}`;
-  }
-
-  /**
-   * Validate hex color
-   */
-  private isValidHexColor(color: string): boolean {
-    const hexColorRegex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
-    return hexColorRegex.test(color);
   }
 }

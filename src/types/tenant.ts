@@ -20,6 +20,7 @@ export interface Tenant {
 }
 
 export interface TenantCreateRequest {
+  slug: string;
   bride_name: string;
   groom_name: string;
   wedding_date: string;
@@ -56,6 +57,7 @@ export interface TenantUI {
 }
 
 export interface TenantCreateRequestUI {
+  slug: string;
   brideName: string;
   groomName: string;
   weddingDate: string;

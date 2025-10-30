@@ -6,7 +6,7 @@ export const tenantValidationSchema = Yup.object({
     .min(2, 'Bride name must be at least 2 characters')
     .max(100, 'Bride name must not exceed 100 characters')
     .matches(
-      /^[a-zA-Z\s\-']+$/,
+      /^[a-zA-ZÀ-ỹĐđ\s\-']+$/,
       'Only letters, spaces, hyphens, and apostrophes allowed'
     ),
   groomName: Yup.string()
@@ -14,7 +14,7 @@ export const tenantValidationSchema = Yup.object({
     .min(2, 'Groom name must be at least 2 characters')
     .max(100, 'Groom name must not exceed 100 characters')
     .matches(
-      /^[a-zA-Z\s\-']+$/,
+      /^[a-zA-ZÀ-ỹĐđ\s\-']+$/,
       'Only letters, spaces, hyphens, and apostrophes allowed'
     ),
   weddingDate: Yup.date()
@@ -38,4 +38,16 @@ export const tenantValidationSchema = Yup.object({
   themeSecondaryColor: Yup.string()
     .matches(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, 'Must be a valid hex color')
     .nullable(),
+  slug: Yup.string()
+    .required('Slug is required')
+    .min(3, 'Slug must be at least 3 characters')
+    .max(100, 'Slug must not exceed 100 characters')
+    .matches(
+      /^[a-z0-9-]+$/,
+      'Slug can only contain lowercase letters, numbers, and hyphens'
+    )
+    .matches(
+      /^[a-z0-9].*[a-z0-9]$|^[a-z0-9]$/,
+      'Slug must start and end with a letter or number'
+    ),
 });

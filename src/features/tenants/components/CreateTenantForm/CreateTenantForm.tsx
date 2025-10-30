@@ -1,10 +1,10 @@
-import { useState } from 'react';
 import { Button, Space, message } from 'antd';
 import { Formik, Form } from 'formik';
 import { TenantCreateRequestUI } from '@/types/tenant';
 import { tenantValidationSchema } from './validation';
 import BrideNameField from './BrideNameField';
 import GroomNameField from './GroomNameField';
+import SlugField from './SlugField';
 import WeddingDateField from './WeddingDateField';
 import VenueFields from './VenueFields';
 import ContactFields from './ContactFields';
@@ -16,30 +16,6 @@ interface CreateTenantFormProps {
 }
 
 export default function CreateTenantForm({ onSuccess, onCancel }: CreateTenantFormProps) {
-  const [generatedSlug, setGeneratedSlug] = useState('');
-
-  // Generate slug from bride and groom names
-  const generateSlug = async (brideName: string, groomName: string) => {
-    if (!brideName || !groomName) {
-      setGeneratedSlug('');
-      return;
-    }
-
-    try {
-      const response = await fetch('/api/tenants/generate-slug', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ brideName, groomName }),
-      });
-
-      const result = await response.json();
-      if (result.success) {
-        setGeneratedSlug(result.data.slug);
-      }
-    } catch (error) {
-      console.error('Failed to generate slug:', error);
-    }
-  };
 
   // Create tenant
   const createTenant = async (values: TenantCreateRequestUI) => {
@@ -54,7 +30,6 @@ export default function CreateTenantForm({ onSuccess, onCancel }: CreateTenantFo
 
       if (result.success) {
         message.success('Tenant created successfully');
-        setGeneratedSlug('');
         onSuccess();
       } else {
         message.error(result.error?.message || 'Failed to create tenant');
@@ -69,6 +44,7 @@ export default function CreateTenantForm({ onSuccess, onCancel }: CreateTenantFo
       initialValues={{
         brideName: '',
         groomName: '',
+        slug: '',
         weddingDate: '',
         venueName: '',
         venueAddress: '',
@@ -87,21 +63,19 @@ export default function CreateTenantForm({ onSuccess, onCancel }: CreateTenantFo
             <BrideNameField
               errors={errors}
               touched={touched}
-              onNameChange={(name) => generateSlug(name, values.groomName)}
             />
             <GroomNameField
               errors={errors}
               touched={touched}
-              onNameChange={(name) => generateSlug(values.brideName, name)}
             />
           </div>
 
-          {/* Generated Slug Preview */}
-          {generatedSlug && (
-            <div style={{ margin: '16px 0', padding: '8px', background: '#f6ffed', border: '1px solid #b7eb8f', borderRadius: '4px' }}>
-              <strong>Generated URL:</strong> {generatedSlug}
-            </div>
-          )}
+          <SlugField
+            errors={errors}
+            touched={touched}
+            brideName={values.brideName}
+            groomName={values.groomName}
+          />
 
           <WeddingDateField
             errors={errors}

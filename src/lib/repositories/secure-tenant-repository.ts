@@ -45,17 +45,12 @@ export class SecureTenantRepository {
     const sanitizedData = sanitizeQueryParams(tenantData);
 
     try {
-      const slug = await this.generateUniqueSlug(
-        sanitizedData.bride_name,
-        sanitizedData.groom_name
-      );
-
       const result = await sql`
         INSERT INTO tenants (
           slug, bride_name, groom_name, wedding_date, venue_name, venue_address,
           venue_map_link, theme_primary_color, theme_secondary_color, email, phone
         ) VALUES (
-          ${slug}, ${sanitizedData.bride_name}, ${sanitizedData.groom_name}, 
+          ${sanitizedData.slug}, ${sanitizedData.bride_name}, ${sanitizedData.groom_name}, 
           ${sanitizedData.wedding_date}, ${sanitizedData.venue_name}, ${sanitizedData.venue_address},
           ${sanitizedData.venue_map_link || null}, 
           ${sanitizedData.theme_primary_color || '#E53E3E'}, 
