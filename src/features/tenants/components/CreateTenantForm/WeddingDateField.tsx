@@ -13,21 +13,21 @@ export default function WeddingDateField({ errors, touched, setFieldValue }: Wed
       <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>
         Wedding Date *
       </label>
-      <Field name="wedding_date">
+      <Field name="weddingDate">
         {() => (
           <DatePicker
             style={{ width: '100%' }}
             placeholder="Select wedding date"
             onChange={(date) => {
-              setFieldValue('wedding_date', date ? date.format('YYYY-MM-DD') : '');
+              setFieldValue('weddingDate', date ? date.format('YYYY-MM-DD') : '');
             }}
-            status={errors.wedding_date && touched.wedding_date ? 'error' : ''}
+            status={errors.weddingDate && touched.weddingDate ? 'error' : ''}
           />
         )}
       </Field>
-      {errors.wedding_date && touched.wedding_date && (
+      {errors.weddingDate && touched.weddingDate && (
         <div style={{ color: '#ff4d4f', fontSize: '12px', marginTop: '4px' }}>
-          {errors.wedding_date}
+          {errors.weddingDate}
         </div>
       )}
     </div>

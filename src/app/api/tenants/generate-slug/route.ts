@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { TenantService } from '@/lib/services/tenant-service';
 import { TenantErrorCode } from '@/types/tenant';
+import { convertObjectToSnakeCase } from '@/lib/utils/case-conversion';
 
 const tenantService = new TenantService();
 
@@ -10,7 +11,10 @@ const tenantService = new TenantService();
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { bride_name, groom_name } = body;
+
+    // Convert camelCase to snake_case for processing
+    const convertedBody = convertObjectToSnakeCase(body);
+    const { bride_name, groom_name } = convertedBody;
 
     if (!bride_name || !groom_name) {
       return NextResponse.json(
@@ -18,7 +22,7 @@ export async function POST(request: NextRequest) {
           success: false,
           error: {
             code: TenantErrorCode.VALIDATION_ERROR,
-            message: 'Both bride_name and groom_name are required',
+            message: 'Both brideName and groomName are required',
           },
         },
         { status: 400 }

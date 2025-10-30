@@ -2,13 +2,13 @@
 
 import { Row, Col, Card, Space, Typography } from 'antd';
 import dayjs from 'dayjs';
-import { Tenant } from '@/types/tenant';
+import { TenantUI } from '@/types/tenant';
 import EditableField from './EditableField';
 
 const { Text } = Typography;
 
 interface OverviewTabProps {
-  tenant: Tenant;
+  tenant: TenantUI;
   editingField: string | null;
   editingValues: Record<string, any>;
   saving: boolean;
@@ -34,12 +34,12 @@ export default function OverviewTab({
         <Card title="Basic Information" size="small">
           <Space direction="vertical" style={{ width: '100%' }} size="large">
             <EditableField
-              field="bride_name"
+              field="brideName"
               label="Bride Name"
-              value={tenant.bride_name}
+              value={tenant.brideName}
               type="text"
-              isEditing={editingField === 'bride_name'}
-              editValue={editingValues.bride_name ?? tenant.bride_name}
+              isEditing={editingField === 'brideName'}
+              editValue={editingValues.brideName ?? tenant.brideName}
               saving={saving}
               onStartEditing={onStartEditing}
               onCancelEditing={onCancelEditing}
@@ -47,12 +47,12 @@ export default function OverviewTab({
               onSave={onSaveFieldUpdate}
             />
             <EditableField
-              field="groom_name"
+              field="groomName"
               label="Groom Name"
-              value={tenant.groom_name}
+              value={tenant.groomName}
               type="text"
-              isEditing={editingField === 'groom_name'}
-              editValue={editingValues.groom_name ?? tenant.groom_name}
+              isEditing={editingField === 'groomName'}
+              editValue={editingValues.groomName ?? tenant.groomName}
               saving={saving}
               onStartEditing={onStartEditing}
               onCancelEditing={onCancelEditing}
@@ -60,12 +60,12 @@ export default function OverviewTab({
               onSave={onSaveFieldUpdate}
             />
             <EditableField
-              field="wedding_date"
+              field="weddingDate"
               label="Wedding Date"
-              value={tenant.wedding_date}
+              value={tenant.weddingDate}
               type="date"
-              isEditing={editingField === 'wedding_date'}
-              editValue={editingValues.wedding_date ?? tenant.wedding_date}
+              isEditing={editingField === 'weddingDate'}
+              editValue={editingValues.weddingDate ?? tenant.weddingDate}
               saving={saving}
               onStartEditing={onStartEditing}
               onCancelEditing={onCancelEditing}
@@ -114,13 +114,13 @@ export default function OverviewTab({
             <div>
               <Text strong>Created:</Text>
               <div style={{ marginTop: 4 }}>
-                <Text>{dayjs(tenant.created_at).format('MMM DD, YYYY HH:mm')}</Text>
+                <Text>{dayjs(tenant.createdAt).format('MMM DD, YYYY HH:mm')}</Text>
               </div>
             </div>
             <div>
               <Text strong>Last Updated:</Text>
               <div style={{ marginTop: 4 }}>
-                <Text>{dayjs(tenant.updated_at).format('MMM DD, YYYY HH:mm')}</Text>
+                <Text>{dayjs(tenant.updatedAt).format('MMM DD, YYYY HH:mm')}</Text>
               </div>
             </div>
           </Space>
@@ -131,12 +131,12 @@ export default function OverviewTab({
         <Card title="Venue Information" size="small">
           <Space direction="vertical" style={{ width: '100%' }} size="large">
             <EditableField
-              field="venue_name"
+              field="venueName"
               label="Venue Name"
-              value={tenant.venue_name}
+              value={tenant.venueName}
               type="text"
-              isEditing={editingField === 'venue_name'}
-              editValue={editingValues.venue_name ?? tenant.venue_name}
+              isEditing={editingField === 'venueName'}
+              editValue={editingValues.venueName ?? tenant.venueName}
               saving={saving}
               onStartEditing={onStartEditing}
               onCancelEditing={onCancelEditing}
@@ -144,12 +144,12 @@ export default function OverviewTab({
               onSave={onSaveFieldUpdate}
             />
             <EditableField
-              field="venue_address"
+              field="venueAddress"
               label="Venue Address"
-              value={tenant.venue_address}
+              value={tenant.venueAddress}
               type="textarea"
-              isEditing={editingField === 'venue_address'}
-              editValue={editingValues.venue_address ?? tenant.venue_address}
+              isEditing={editingField === 'venueAddress'}
+              editValue={editingValues.venueAddress ?? tenant.venueAddress}
               saving={saving}
               onStartEditing={onStartEditing}
               onCancelEditing={onCancelEditing}
@@ -157,12 +157,12 @@ export default function OverviewTab({
               onSave={onSaveFieldUpdate}
             />
             <EditableField
-              field="venue_map_link"
+              field="venueMapLink"
               label="Map Link"
-              value={tenant.venue_map_link}
+              value={tenant.venueMapLink}
               type="url"
-              isEditing={editingField === 'venue_map_link'}
-              editValue={editingValues.venue_map_link ?? tenant.venue_map_link}
+              isEditing={editingField === 'venueMapLink'}
+              editValue={editingValues.venueMapLink ?? tenant.venueMapLink}
               saving={saving}
               onStartEditing={onStartEditing}
               onCancelEditing={onCancelEditing}

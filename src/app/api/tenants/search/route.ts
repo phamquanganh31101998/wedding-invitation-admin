@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { TenantService } from '@/lib/services/tenant-service';
 import { TenantErrorCode } from '@/types/tenant';
+import { convertObjectToCamelCase } from '@/lib/utils/case-conversion';
 
 const tenantService = new TenantService();
 
@@ -27,9 +28,14 @@ export async function GET(request: NextRequest) {
 
     const tenants = await tenantService.searchTenants(query);
 
+    // Convert snake_case to camelCase for frontend
+    const convertedTenants = tenants.map((tenant) =>
+      convertObjectToCamelCase(tenant)
+    );
+
     return NextResponse.json({
       success: true,
-      data: tenants,
+      data: convertedTenants,
     });
   } catch (error: any) {
     console.error('Error searching tenants:', error);

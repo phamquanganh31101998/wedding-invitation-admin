@@ -12,7 +12,7 @@ import {
   TeamOutlined,
 } from '@ant-design/icons';
 import { useModal } from '@ebay/nice-modal-react';
-import { Tenant, TenantUpdateRequest } from '@/types/tenant';
+import { TenantUI, TenantUpdateRequestUI } from '@/types/tenant';
 import DashboardBreadcrumb from '@/components/common/DashboardBreadcrumb';
 import TenantDetailTabs from './components/TenantDetailTabs/TenantDetailTabs';
 import ThemePreviewModal from './components/ThemePreviewModal/ThemePreviewModal';
@@ -20,7 +20,7 @@ import ThemePreviewModal from './components/ThemePreviewModal/ThemePreviewModal'
 const { Title } = Typography;
 
 interface TenantDetailState {
-  tenant: Tenant | null;
+  tenant: TenantUI | null;
   loading: boolean;
   editingField: string | null;
   editingValues: Record<string, any>;
@@ -112,7 +112,7 @@ export default function TenantDetailManagement({ tenantId }: TenantDetailManagem
     setState(prev => ({ ...prev, saving: true }));
 
     try {
-      const updateData: TenantUpdateRequest = { [field]: value };
+      const updateData: TenantUpdateRequestUI = { [field]: value };
 
       const response = await fetch(`/api/tenants/${state.tenant.id}`, {
         method: 'PUT',
@@ -151,7 +151,7 @@ export default function TenantDetailManagement({ tenantId }: TenantDetailManagem
       const response = await fetch(`/api/tenants/${state.tenant.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ is_active: isActive }),
+        body: JSON.stringify({ isActive }),
       });
 
       const result = await response.json();
@@ -205,7 +205,7 @@ export default function TenantDetailManagement({ tenantId }: TenantDetailManagem
               ),
             },
             {
-              title: `${state.tenant.bride_name} & ${state.tenant.groom_name}`,
+              title: `${state.tenant.brideName} & ${state.tenant.groomName}`,
             },
           ]}
         />
@@ -226,20 +226,20 @@ export default function TenantDetailManagement({ tenantId }: TenantDetailManagem
               Tenants List
             </Button>
             <Title level={2} style={{ margin: 0 }}>
-              {state.tenant.bride_name} & {state.tenant.groom_name}
+              {state.tenant.brideName} & {state.tenant.groomName}
             </Title>
-            <Tag color={state.tenant.is_active ? 'green' : 'red'}>
-              {state.tenant.is_active ? 'Active' : 'Inactive'}
+            <Tag color={state.tenant.isActive ? 'green' : 'red'}>
+              {state.tenant.isActive ? 'Active' : 'Inactive'}
             </Tag>
           </div>
           <Space>
             <Button
-              type={state.tenant.is_active ? 'default' : 'primary'}
-              icon={state.tenant.is_active ? <StopOutlined /> : <CheckCircleOutlined />}
-              onClick={() => updateTenantStatus(!state.tenant!.is_active)}
+              type={state.tenant.isActive ? 'default' : 'primary'}
+              icon={state.tenant.isActive ? <StopOutlined /> : <CheckCircleOutlined />}
+              onClick={() => updateTenantStatus(!state.tenant!.isActive)}
               loading={state.saving}
             >
-              {state.tenant.is_active ? 'Deactivate' : 'Activate'}
+              {state.tenant.isActive ? 'Deactivate' : 'Activate'}
             </Button>
             <Button
               type="primary"

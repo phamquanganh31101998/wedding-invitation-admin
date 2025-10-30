@@ -2,12 +2,12 @@
 
 import { Typography, Button } from 'antd';
 import dayjs from 'dayjs';
-import { Tenant } from '@/types/tenant';
+import { TenantUI } from '@/types/tenant';
 
 const { Title, Text } = Typography;
 
 interface ThemePreviewProps {
-  tenant: Tenant;
+  tenant: TenantUI;
 }
 
 export default function ThemePreview({ tenant }: ThemePreviewProps) {
@@ -15,7 +15,7 @@ export default function ThemePreview({ tenant }: ThemePreviewProps) {
     <div style={{ padding: 16 }}>
       <div
         style={{
-          background: `linear-gradient(135deg, ${tenant.theme_primary_color}, ${tenant.theme_secondary_color})`,
+          background: `linear-gradient(135deg, ${tenant.themePrimaryColor}, ${tenant.themeSecondaryColor})`,
           padding: 24,
           borderRadius: 8,
           color: '#fff',
@@ -23,24 +23,24 @@ export default function ThemePreview({ tenant }: ThemePreviewProps) {
         }}
       >
         <Title level={4} style={{ color: '#fff', margin: 0 }}>
-          {tenant.bride_name} & {tenant.groom_name}
+          {tenant.brideName} & {tenant.groomName}
         </Title>
         <Text style={{ color: '#fff', opacity: 0.9 }}>
-          {dayjs(tenant.wedding_date).format('MMMM DD, YYYY')}
+          {dayjs(tenant.weddingDate).format('MMMM DD, YYYY')}
         </Text>
       </div>
       <div style={{ marginTop: 16, textAlign: 'center' }}>
         <Button
           type="primary"
-          style={{ backgroundColor: tenant.theme_primary_color, borderColor: tenant.theme_primary_color }}
+          style={{ backgroundColor: tenant.themePrimaryColor, borderColor: tenant.themePrimaryColor }}
         >
           Primary Button
         </Button>
         <Button
           style={{
             marginLeft: 8,
-            backgroundColor: tenant.theme_secondary_color,
-            borderColor: tenant.theme_secondary_color,
+            backgroundColor: tenant.themeSecondaryColor,
+            borderColor: tenant.themeSecondaryColor,
             color: '#000'
           }}
         >

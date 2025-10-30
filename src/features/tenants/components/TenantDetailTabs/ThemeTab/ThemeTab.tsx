@@ -1,12 +1,12 @@
 'use client';
 
 import { Row, Col, Card, Space } from 'antd';
-import { Tenant } from '@/types/tenant';
+import { TenantUI } from '@/types/tenant';
 import ColorField from './ColorField';
 import ThemePreview from './ThemePreview';
 
 interface ThemeTabProps {
-  tenant: Tenant;
+  tenant: TenantUI;
   editingField: string | null;
   editingValues: Record<string, any>;
   saving: boolean;
@@ -32,11 +32,11 @@ export default function ThemeTab({
         <Card title="Color Settings" size="small">
           <Space direction="vertical" style={{ width: '100%' }} size="large">
             <ColorField
-              field="theme_primary_color"
+              field="themePrimaryColor"
               label="Primary Color"
-              value={tenant.theme_primary_color}
-              isEditing={editingField === 'theme_primary_color'}
-              editValue={editingValues.theme_primary_color ?? tenant.theme_primary_color}
+              value={tenant.themePrimaryColor}
+              isEditing={editingField === 'themePrimaryColor'}
+              editValue={editingValues.themePrimaryColor ?? tenant.themePrimaryColor}
               saving={saving}
               onStartEditing={onStartEditing}
               onCancelEditing={onCancelEditing}
@@ -44,11 +44,11 @@ export default function ThemeTab({
               onSave={onSaveFieldUpdate}
             />
             <ColorField
-              field="theme_secondary_color"
+              field="themeSecondaryColor"
               label="Secondary Color"
-              value={tenant.theme_secondary_color}
-              isEditing={editingField === 'theme_secondary_color'}
-              editValue={editingValues.theme_secondary_color ?? tenant.theme_secondary_color}
+              value={tenant.themeSecondaryColor}
+              isEditing={editingField === 'themeSecondaryColor'}
+              editValue={editingValues.themeSecondaryColor ?? tenant.themeSecondaryColor}
               saving={saving}
               onStartEditing={onStartEditing}
               onCancelEditing={onCancelEditing}

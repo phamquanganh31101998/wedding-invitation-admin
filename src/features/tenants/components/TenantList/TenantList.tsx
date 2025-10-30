@@ -3,10 +3,10 @@ import { EyeOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import dayjs from 'dayjs';
 import type { ColumnsType } from 'antd/es/table';
-import { Tenant } from '@/types/tenant';
+import { TenantUI } from '@/types/tenant';
 
 interface TenantListProps {
-  tenants: Tenant[];
+  tenants: TenantUI[];
   loading: boolean;
   currentPage: number;
   pageSize: number;
@@ -25,14 +25,14 @@ export default function TenantList({
   const router = useRouter();
 
   // Table columns
-  const columns: ColumnsType<Tenant> = [
+  const columns: ColumnsType<TenantUI> = [
     {
       title: 'Couple',
       key: 'couple',
       render: (_, record) => (
         <div>
           <div style={{ fontWeight: 'bold' }}>
-            {record.bride_name} & {record.groom_name}
+            {record.brideName} & {record.groomName}
           </div>
           <div style={{ fontSize: '12px', color: '#666' }}>
             {record.slug}
@@ -42,21 +42,21 @@ export default function TenantList({
     },
     {
       title: 'Wedding Date',
-      dataIndex: 'wedding_date',
-      key: 'wedding_date',
+      dataIndex: 'weddingDate',
+      key: 'weddingDate',
       render: (date: string) => dayjs(date).format('MMM DD, YYYY'),
       sorter: true,
     },
     {
       title: 'Venue',
-      dataIndex: 'venue_name',
-      key: 'venue_name',
+      dataIndex: 'venueName',
+      key: 'venueName',
       ellipsis: true,
     },
     {
       title: 'Status',
-      dataIndex: 'is_active',
-      key: 'is_active',
+      dataIndex: 'isActive',
+      key: 'isActive',
       render: (isActive: boolean) => (
         <Tag color={isActive ? 'green' : 'red'}>
           {isActive ? 'Active' : 'Inactive'}
@@ -69,8 +69,8 @@ export default function TenantList({
     },
     {
       title: 'Created',
-      dataIndex: 'created_at',
-      key: 'created_at',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
       render: (date: string) => dayjs(date).format('MMM DD, YYYY'),
       sorter: true,
     },

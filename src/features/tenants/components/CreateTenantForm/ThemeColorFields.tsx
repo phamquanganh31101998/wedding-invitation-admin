@@ -13,19 +13,19 @@ export default function ThemeColorFields({ errors, touched }: ThemeColorFieldsPr
         <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>
           Primary Color
         </label>
-        <Field name="theme_primary_color">
+        <Field name="themePrimaryColor">
           {({ field }: any) => (
             <Input
               {...field}
               type="color"
               style={{ height: '40px' }}
-              status={errors.theme_primary_color && touched.theme_primary_color ? 'error' : ''}
+              status={errors.themePrimaryColor && touched.themePrimaryColor ? 'error' : ''}
             />
           )}
         </Field>
-        {errors.theme_primary_color && touched.theme_primary_color && (
+        {errors.themePrimaryColor && touched.themePrimaryColor && (
           <div style={{ color: '#ff4d4f', fontSize: '12px', marginTop: '4px' }}>
-            {errors.theme_primary_color}
+            {errors.themePrimaryColor}
           </div>
         )}
       </div>
@@ -34,19 +34,19 @@ export default function ThemeColorFields({ errors, touched }: ThemeColorFieldsPr
         <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>
           Secondary Color
         </label>
-        <Field name="theme_secondary_color">
+        <Field name="themeSecondaryColor">
           {({ field }: any) => (
             <Input
               {...field}
               type="color"
               style={{ height: '40px' }}
-              status={errors.theme_secondary_color && touched.theme_secondary_color ? 'error' : ''}
+              status={errors.themeSecondaryColor && touched.themeSecondaryColor ? 'error' : ''}
             />
           )}
         </Field>
-        {errors.theme_secondary_color && touched.theme_secondary_color && (
+        {errors.themeSecondaryColor && touched.themeSecondaryColor && (
           <div style={{ color: '#ff4d4f', fontSize: '12px', marginTop: '4px' }}>
-            {errors.theme_secondary_color}
+            {errors.themeSecondaryColor}
           </div>
         )}
       </div>

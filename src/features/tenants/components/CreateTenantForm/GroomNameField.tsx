@@ -13,12 +13,12 @@ export default function GroomNameField({ errors, touched, onNameChange }: GroomN
       <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>
         Groom Name *
       </label>
-      <Field name="groom_name">
+      <Field name="groomName">
         {({ field }: any) => (
           <Input
             {...field}
             placeholder="Enter groom's name"
-            status={errors.groom_name && touched.groom_name ? 'error' : ''}
+            status={errors.groomName && touched.groomName ? 'error' : ''}
             onChange={(e) => {
               field.onChange(e);
               onNameChange(e.target.value);
@@ -26,9 +26,9 @@ export default function GroomNameField({ errors, touched, onNameChange }: GroomN
           />
         )}
       </Field>
-      {errors.groom_name && touched.groom_name && (
+      {errors.groomName && touched.groomName && (
         <div style={{ color: '#ff4d4f', fontSize: '12px', marginTop: '4px' }}>
-          {errors.groom_name}
+          {errors.groomName}
         </div>
       )}
     </div>

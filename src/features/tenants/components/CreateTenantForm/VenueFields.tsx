@@ -15,18 +15,18 @@ export default function VenueFields({ errors, touched }: VenueFieldsProps) {
           <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>
             Venue Name *
           </label>
-          <Field name="venue_name">
+          <Field name="venueName">
             {({ field }: any) => (
               <Input
                 {...field}
                 placeholder="Enter venue name"
-                status={errors.venue_name && touched.venue_name ? 'error' : ''}
+                status={errors.venueName && touched.venueName ? 'error' : ''}
               />
             )}
           </Field>
-          {errors.venue_name && touched.venue_name && (
+          {errors.venueName && touched.venueName && (
             <div style={{ color: '#ff4d4f', fontSize: '12px', marginTop: '4px' }}>
-              {errors.venue_name}
+              {errors.venueName}
             </div>
           )}
         </div>
@@ -35,18 +35,18 @@ export default function VenueFields({ errors, touched }: VenueFieldsProps) {
           <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>
             Venue Map Link
           </label>
-          <Field name="venue_map_link">
+          <Field name="venueMapLink">
             {({ field }: any) => (
               <Input
                 {...field}
                 placeholder="https://maps.google.com/..."
-                status={errors.venue_map_link && touched.venue_map_link ? 'error' : ''}
+                status={errors.venueMapLink && touched.venueMapLink ? 'error' : ''}
               />
             )}
           </Field>
-          {errors.venue_map_link && touched.venue_map_link && (
+          {errors.venueMapLink && touched.venueMapLink && (
             <div style={{ color: '#ff4d4f', fontSize: '12px', marginTop: '4px' }}>
-              {errors.venue_map_link}
+              {errors.venueMapLink}
             </div>
           )}
         </div>
@@ -57,19 +57,19 @@ export default function VenueFields({ errors, touched }: VenueFieldsProps) {
         <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>
           Venue Address *
         </label>
-        <Field name="venue_address">
+        <Field name="venueAddress">
           {({ field }: any) => (
             <Input.TextArea
               {...field}
               placeholder="Enter complete venue address"
               rows={2}
-              status={errors.venue_address && touched.venue_address ? 'error' : ''}
+              status={errors.venueAddress && touched.venueAddress ? 'error' : ''}
             />
           )}
         </Field>
-        {errors.venue_address && touched.venue_address && (
+        {errors.venueAddress && touched.venueAddress && (
           <div style={{ color: '#ff4d4f', fontSize: '12px', marginTop: '4px' }}>
-            {errors.venue_address}
+            {errors.venueAddress}
           </div>
         )}
       </div>

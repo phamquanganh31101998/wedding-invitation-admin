@@ -8,6 +8,10 @@ import {
   TenantErrorCode,
 } from '@/types/tenant';
 import { createSecurityErrorResponse } from '@/lib/security/tenant-security';
+import {
+  convertObjectToSnakeCase,
+  convertObjectToCamelCase,
+} from '@/lib/utils/case-conversion';
 
 const tenantService = new TenantService();
 
@@ -31,14 +35,22 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
 
-    // Parse filters
+    // Parse filters (support both camelCase and snake_case for backward compatibility)
     const filters: TenantFilters = {
       search: searchParams.get('search') || undefined,
-      is_active: searchParams.get('is_active')
-        ? searchParams.get('is_active') === 'true'
-        : undefined,
-      wedding_date_from: searchParams.get('wedding_date_from') || undefined,
-      wedding_date_to: searchParams.get('wedding_date_to') || undefined,
+      is_active:
+        searchParams.get('is_active') || searchParams.get('isActive')
+          ? (searchParams.get('is_active') || searchParams.get('isActive')) ===
+            'true'
+          : undefined,
+      wedding_date_from:
+        searchParams.get('wedding_date_from') ||
+        searchParams.get('weddingDateFrom') ||
+        undefined,
+      wedding_date_to:
+        searchParams.get('wedding_date_to') ||
+        searchParams.get('weddingDateTo') ||
+        undefined,
     };
 
     // Parse pagination
@@ -49,9 +61,15 @@ export async function GET(request: NextRequest) {
 
     const result = await tenantService.listTenants(filters, pagination);
 
+    // Convert snake_case to camelCase for frontend
+    const convertedResult = {
+      ...result,
+      tenants: result.tenants.map((tenant) => convertObjectToCamelCase(tenant)),
+    };
+
     return NextResponse.json({
       success: true,
-      data: result,
+      data: convertedResult,
     });
   } catch (error: any) {
     console.error('Error listing tenants:', error);
@@ -96,26 +114,20 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
-    // Validate required fields
-    const createData: TenantCreateRequest = {
-      bride_name: body.bride_name,
-      groom_name: body.groom_name,
-      wedding_date: body.wedding_date,
-      venue_name: body.venue_name,
-      venue_address: body.venue_address,
-      venue_map_link: body.venue_map_link,
-      theme_primary_color: body.theme_primary_color,
-      theme_secondary_color: body.theme_secondary_color,
-      email: body.email,
-      phone: body.phone,
-    };
+    // Convert camelCase to snake_case for database
+    const createData: TenantCreateRequest = convertObjectToSnakeCase(
+      body
+    ) as TenantCreateRequest;
 
     const tenant = await tenantService.createTenant(createData);
+
+    // Convert snake_case to camelCase for frontend response
+    const convertedTenant = convertObjectToCamelCase(tenant);
 
     return NextResponse.json(
       {
         success: true,
-        data: tenant,
+        data: convertedTenant,
         message: 'Tenant created successfully',
       },
       { status: 201 }

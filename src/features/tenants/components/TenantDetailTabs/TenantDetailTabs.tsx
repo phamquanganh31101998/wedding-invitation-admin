@@ -1,13 +1,13 @@
 'use client';
 
 import { Tabs } from 'antd';
-import { Tenant } from '@/types/tenant';
+import { TenantUI } from '@/types/tenant';
 import OverviewTab from './OverviewTab/OverviewTab';
 import ThemeTab from './ThemeTab/ThemeTab';
 import SettingsTab from './SettingsTab/SettingsTab';
 
 interface TenantDetailTabsProps {
-  tenant: Tenant;
+  tenant: TenantUI;
   editingField: string | null;
   editingValues: Record<string, any>;
   saving: boolean;

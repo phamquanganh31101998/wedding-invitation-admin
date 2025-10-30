@@ -7,7 +7,7 @@ import {
 } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useModal } from '@ebay/nice-modal-react';
-import { Tenant } from '@/types/tenant';
+import { TenantUI } from '@/types/tenant';
 import DashboardBreadcrumb from '@/components/common/DashboardBreadcrumb';
 import CreateTenantModal from './components/CreateTenantModal/CreateTenantModal';
 import { Filter, TenantList } from './components';
@@ -15,7 +15,7 @@ import { Filter, TenantList } from './components';
 const { Title } = Typography;
 
 interface TenantListManagementState {
-  tenants: Tenant[];
+  tenants: TenantUI[];
   loading: boolean;
   total: number;
   currentPage: number;

@@ -3,6 +3,10 @@ import { getServerSession } from 'next-auth';
 import { TenantService } from '@/lib/services/tenant-service';
 import { TenantUpdateRequest, TenantErrorCode } from '@/types/tenant';
 import { createSecurityErrorResponse } from '@/lib/security/tenant-security';
+import {
+  convertObjectToSnakeCase,
+  convertObjectToCamelCase,
+} from '@/lib/utils/case-conversion';
 
 const tenantService = new TenantService();
 
@@ -58,9 +62,12 @@ export async function GET(
       );
     }
 
+    // Convert snake_case to camelCase for frontend
+    const convertedTenant = convertObjectToCamelCase(tenant);
+
     return NextResponse.json({
       success: true,
-      data: tenant,
+      data: convertedTenant,
     });
   } catch (error: any) {
     console.error('Error getting tenant:', error);
@@ -124,19 +131,10 @@ export async function PUT(
 
     const body = await request.json();
 
-    const updateData: TenantUpdateRequest = {
-      bride_name: body.bride_name,
-      groom_name: body.groom_name,
-      wedding_date: body.wedding_date,
-      venue_name: body.venue_name,
-      venue_address: body.venue_address,
-      venue_map_link: body.venue_map_link,
-      theme_primary_color: body.theme_primary_color,
-      theme_secondary_color: body.theme_secondary_color,
-      email: body.email,
-      phone: body.phone,
-      is_active: body.is_active,
-    };
+    // Convert camelCase to snake_case for database
+    const updateData: TenantUpdateRequest = convertObjectToSnakeCase(
+      body
+    ) as TenantUpdateRequest;
 
     // Remove undefined values
     Object.keys(updateData).forEach((key) => {
@@ -147,9 +145,12 @@ export async function PUT(
 
     const tenant = await tenantService.updateTenant(tenantId, updateData);
 
+    // Convert snake_case to camelCase for frontend response
+    const convertedTenant = convertObjectToCamelCase(tenant);
+
     return NextResponse.json({
       success: true,
-      data: tenant,
+      data: convertedTenant,
       message: 'Tenant updated successfully',
     });
   } catch (error: any) {

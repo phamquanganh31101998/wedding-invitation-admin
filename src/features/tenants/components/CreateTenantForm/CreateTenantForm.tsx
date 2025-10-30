@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button, Space, message } from 'antd';
 import { Formik, Form } from 'formik';
-import { TenantCreateRequest } from '@/types/tenant';
+import { TenantCreateRequestUI } from '@/types/tenant';
 import { tenantValidationSchema } from './validation';
 import BrideNameField from './BrideNameField';
 import GroomNameField from './GroomNameField';
@@ -29,7 +29,7 @@ export default function CreateTenantForm({ onSuccess, onCancel }: CreateTenantFo
       const response = await fetch('/api/tenants/generate-slug', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bride_name: brideName, groom_name: groomName }),
+        body: JSON.stringify({ brideName, groomName }),
       });
 
       const result = await response.json();
@@ -42,7 +42,7 @@ export default function CreateTenantForm({ onSuccess, onCancel }: CreateTenantFo
   };
 
   // Create tenant
-  const createTenant = async (values: TenantCreateRequest) => {
+  const createTenant = async (values: TenantCreateRequestUI) => {
     try {
       const response = await fetch('/api/tenants', {
         method: 'POST',
@@ -67,16 +67,16 @@ export default function CreateTenantForm({ onSuccess, onCancel }: CreateTenantFo
   return (
     <Formik
       initialValues={{
-        bride_name: '',
-        groom_name: '',
-        wedding_date: '',
-        venue_name: '',
-        venue_address: '',
-        venue_map_link: '',
+        brideName: '',
+        groomName: '',
+        weddingDate: '',
+        venueName: '',
+        venueAddress: '',
+        venueMapLink: '',
         email: '',
         phone: '',
-        theme_primary_color: '#E53E3E',
-        theme_secondary_color: '#FED7D7',
+        themePrimaryColor: '#E53E3E',
+        themeSecondaryColor: '#FED7D7',
       }}
       validationSchema={tenantValidationSchema}
       onSubmit={createTenant}
@@ -87,12 +87,12 @@ export default function CreateTenantForm({ onSuccess, onCancel }: CreateTenantFo
             <BrideNameField
               errors={errors}
               touched={touched}
-              onNameChange={(name) => generateSlug(name, values.groom_name)}
+              onNameChange={(name) => generateSlug(name, values.groomName)}
             />
             <GroomNameField
               errors={errors}
               touched={touched}
-              onNameChange={(name) => generateSlug(values.bride_name, name)}
+              onNameChange={(name) => generateSlug(values.brideName, name)}
             />
           </div>
 

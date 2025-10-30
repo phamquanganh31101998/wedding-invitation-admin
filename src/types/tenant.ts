@@ -1,5 +1,6 @@
 // Tenant Management Types and Interfaces
 
+// Database types (snake_case) - used by repositories and services
 export interface Tenant {
   id: number;
   slug: string;
@@ -33,6 +34,42 @@ export interface TenantCreateRequest {
 
 export interface TenantUpdateRequest extends Partial<TenantCreateRequest> {
   is_active?: boolean;
+}
+
+// Frontend types (camelCase) - used by UI components
+export interface TenantUI {
+  id: number;
+  slug: string;
+  brideName: string;
+  groomName: string;
+  weddingDate: string;
+  venueName: string;
+  venueAddress: string;
+  venueMapLink?: string;
+  themePrimaryColor: string;
+  themeSecondaryColor: string;
+  isActive: boolean;
+  email?: string;
+  phone?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface TenantCreateRequestUI {
+  brideName: string;
+  groomName: string;
+  weddingDate: string;
+  venueName: string;
+  venueAddress: string;
+  venueMapLink?: string;
+  themePrimaryColor?: string;
+  themeSecondaryColor?: string;
+  email?: string;
+  phone?: string;
+}
+
+export interface TenantUpdateRequestUI extends Partial<TenantCreateRequestUI> {
+  isActive?: boolean;
 }
 
 export interface TenantListResponse {
