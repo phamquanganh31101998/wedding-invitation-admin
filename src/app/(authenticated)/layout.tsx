@@ -17,11 +17,11 @@ import type { MenuProps } from 'antd';
 const { Header, Sider, Content } = Layout;
 const { Title } = Typography;
 
-interface DashboardLayoutProps {
+interface AuthenticatedLayoutProps {
   children: React.ReactNode;
 }
 
-export default function DashboardLayout({ children }: DashboardLayoutProps) {
+export default function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
   const pathname = usePathname();
@@ -47,10 +47,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       onClick: () => router.push('/dashboard'),
     },
     {
-      key: '/dashboard/tenants',
+      key: '/tenants',
       icon: <TeamOutlined />,
       label: 'Tenant Management',
-      onClick: () => router.push('/dashboard/tenants'),
+      onClick: () => router.push('/tenants'),
     },
     {
       key: 'rsvp',
@@ -90,7 +90,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   // Get selected menu key based on current path
   const getSelectedKey = () => {
     if (pathname === '/dashboard') return '/dashboard';
-    if (pathname.startsWith('/dashboard/tenants')) return '/dashboard/tenants';
+    if (pathname.startsWith('/tenants')) return '/tenants';
     return pathname;
   };
 

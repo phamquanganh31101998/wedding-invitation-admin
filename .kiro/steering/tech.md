@@ -72,7 +72,7 @@ yarn add <package>   # Add new dependency
 
 ## Note
 
-- UI app route components do not contain business logic, only page-level concerns (refer to src/app/dashboard/tenants/page.tsx to understand how you should write code)
+- UI app route components do not contain business logic, only page-level concerns (refer to src/app/(authenticated)/tenants/page.tsx to understand how you should write code)
 - Don't create test files
 - Use NiceModal for Modal
 - Try reuse existing components as much as possible

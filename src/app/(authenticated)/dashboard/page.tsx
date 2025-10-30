@@ -43,7 +43,7 @@ export default function DashboardPage() {
             <Card
               hoverable
               style={{ textAlign: 'center', height: '200px' }}
-              onClick={() => router.push('/dashboard/tenants')}
+              onClick={() => router.push('/tenants')}
             >
               <TeamOutlined style={{ fontSize: 48, color: '#1890ff', marginBottom: 16 }} />
               <Title level={3}>Tenant Management</Title>

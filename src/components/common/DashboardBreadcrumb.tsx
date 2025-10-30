@@ -26,9 +26,9 @@ export default function DashboardBreadcrumb({ customItems }: DashboardBreadcrumb
       },
     ];
 
-    if (pathname.startsWith('/dashboard/tenants')) {
+    if (pathname.startsWith('/tenants')) {
       items.push({
-        href: '/dashboard/tenants',
+        href: '/tenants',
         title: (
           <span>
             <TeamOutlined />
@@ -38,7 +38,7 @@ export default function DashboardBreadcrumb({ customItems }: DashboardBreadcrumb
       });
 
       // If we're on a specific tenant page
-      if (pathname.match(/\/dashboard\/tenants\/\d+/)) {
+      if (pathname.match(/\/tenants\/\d+/)) {
         // This will be overridden by customItems if provided
         items.push({
           title: 'Tenant Details',

@@ -63,7 +63,7 @@ export default function TenantDetailManagement({ tenantId }: TenantDetailManagem
         message.error(result.error?.message || 'Failed to load tenant');
         setState(prev => ({ ...prev, loading: false }));
         if (result.error?.code === 'TENANT_NOT_FOUND') {
-          router.push('/dashboard/tenants');
+          router.push('/tenants');
         }
       }
     } catch (error) {
@@ -196,7 +196,7 @@ export default function TenantDetailManagement({ tenantId }: TenantDetailManagem
               title: <HomeOutlined />,
             },
             {
-              href: '/dashboard/tenants',
+              href: '/tenants',
               title: (
                 <span>
                   <TeamOutlined />
@@ -221,7 +221,7 @@ export default function TenantDetailManagement({ tenantId }: TenantDetailManagem
             <Button
               type="text"
               icon={<ArrowLeftOutlined />}
-              onClick={() => router.push('/dashboard/tenants')}
+              onClick={() => router.push('/tenants')}
             >
               Tenants List
             </Button>

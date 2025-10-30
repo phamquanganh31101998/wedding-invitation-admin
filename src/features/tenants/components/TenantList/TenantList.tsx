@@ -83,7 +83,7 @@ export default function TenantList({
             <Button
               type="text"
               icon={<EyeOutlined />}
-              onClick={() => router.push(`/dashboard/tenants/${record.id}`)}
+              onClick={() => router.push(`/tenants/${record.id}`)}
             />
           </Tooltip>
         </Space>
