@@ -7,7 +7,7 @@ import {
   SettingOutlined,
   BarChartOutlined
 } from '@ant-design/icons';
-import DashboardBreadcrumb from '@/components/DashboardBreadcrumb';
+import DashboardBreadcrumb from '@/components/common/DashboardBreadcrumb';
 
 const { Title, Paragraph } = Typography;
 

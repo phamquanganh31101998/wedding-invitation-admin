@@ -4,12 +4,12 @@ import {
   Button,
   Card,
   message,
-  Modal,
 } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
+import { useModal } from '@ebay/nice-modal-react';
 import { Tenant } from '@/types/tenant';
-import DashboardBreadcrumb from '@/components/DashboardBreadcrumb';
-import { CreateTenantForm } from '@/features/tenants/components/CreateTenantForm';
+import DashboardBreadcrumb from '@/components/common/DashboardBreadcrumb';
+import CreateTenantModal from './components/CreateTenantModal/CreateTenantModal';
 import { Filter, TenantList } from './components';
 
 const { Title } = Typography;
@@ -22,7 +22,6 @@ interface TenantListManagementState {
   pageSize: number;
   searchQuery: string;
   statusFilter: boolean | undefined;
-  createModalVisible: boolean;
 }
 
 export default function TenantListManagement() {
@@ -34,8 +33,9 @@ export default function TenantListManagement() {
     pageSize: 10,
     searchQuery: '',
     statusFilter: undefined,
-    createModalVisible: false,
   });
+
+  const createTenantModal = useModal(CreateTenantModal);
 
   // Load tenants
   const loadTenants = useCallback(async () => {
@@ -82,8 +82,12 @@ export default function TenantListManagement() {
 
   // Handle successful tenant creation
   const handleTenantCreated = () => {
-    setState(prev => ({ ...prev, createModalVisible: false }));
     loadTenants();
+  };
+
+  // Show create tenant modal
+  const showCreateTenantModal = () => {
+    createTenantModal.show({ onSuccess: handleTenantCreated });
   };
 
   // Handle search
@@ -132,7 +136,7 @@ export default function TenantListManagement() {
           <Button
             type="primary"
             icon={<PlusOutlined />}
-            onClick={() => setState(prev => ({ ...prev, createModalVisible: true }))}
+            onClick={showCreateTenantModal}
           >
             Create Tenant
           </Button>
@@ -157,19 +161,7 @@ export default function TenantListManagement() {
         </Card>
       </div>
 
-      {/* Create Tenant Modal */}
-      <Modal
-        title="Create New Tenant"
-        open={state.createModalVisible}
-        onCancel={() => setState(prev => ({ ...prev, createModalVisible: false }))}
-        footer={null}
-        width={800}
-      >
-        <CreateTenantForm
-          onSuccess={handleTenantCreated}
-          onCancel={() => setState(prev => ({ ...prev, createModalVisible: false }))}
-        />
-      </Modal>
+
     </div>
   );
 }

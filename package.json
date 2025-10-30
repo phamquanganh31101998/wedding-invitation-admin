@@ -11,6 +11,7 @@
     "format": "prettier --write ."
   },
   "dependencies": {
+    "@ebay/nice-modal-react": "^1.2.13",
     "@neondatabase/serverless": "^1.0.2",
     "antd": "^5.12.8",
     "dayjs": "^1.11.18",
