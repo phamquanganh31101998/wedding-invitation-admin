@@ -39,46 +39,8 @@ import DashboardBreadcrumb from '@/components/DashboardBreadcrumb';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
-const { TabPane } = Tabs;
 
 // Validation schema for tenant updates
-const tenantUpdateSchema = Yup.object({
-  bride_name: Yup.string()
-    .required('Bride name is required')
-    .min(2, 'Bride name must be at least 2 characters')
-    .max(100, 'Bride name must not exceed 100 characters')
-    .matches(/^[a-zA-Z\s\-']+$/, 'Only letters, spaces, hyphens, and apostrophes allowed'),
-  groom_name: Yup.string()
-    .required('Groom name is required')
-    .min(2, 'Groom name must be at least 2 characters')
-    .max(100, 'Groom name must not exceed 100 characters')
-    .matches(/^[a-zA-Z\s\-']+$/, 'Only letters, spaces, hyphens, and apostrophes allowed'),
-  wedding_date: Yup.date()
-    .required('Wedding date is required')
-    .min(new Date('1900-01-01'), 'Wedding date must be after 1900'),
-  venue_name: Yup.string()
-    .required('Venue name is required')
-    .min(2, 'Venue name must be at least 2 characters')
-    .max(200, 'Venue name must not exceed 200 characters'),
-  venue_address: Yup.string()
-    .required('Venue address is required')
-    .min(5, 'Venue address must be at least 5 characters'),
-  venue_map_link: Yup.string()
-    .url('Must be a valid URL')
-    .nullable(),
-  email: Yup.string()
-    .email('Must be a valid email address')
-    .nullable(),
-  phone: Yup.string()
-    .matches(/^[\+]?[1-9][\d]{0,15}$/, 'Must be a valid phone number')
-    .nullable(),
-  theme_primary_color: Yup.string()
-    .matches(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, 'Must be a valid hex color')
-    .required('Primary color is required'),
-  theme_secondary_color: Yup.string()
-    .matches(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, 'Must be a valid hex color')
-    .required('Secondary color is required'),
-});
 
 interface TenantDetailState {
   tenant: Tenant | null;
@@ -512,187 +474,201 @@ export default function TenantDetailPage() {
             </Button>
           </Space>
         </div>
-        <Tabs defaultActiveKey="overview" type="card">
-          <TabPane tab="Overview" key="overview">
-            <Row gutter={[24, 24]}>
-              <Col xs={24} lg={12}>
-                <Card title="Basic Information" size="small">
-                  <Space direction="vertical" style={{ width: '100%' }} size="large">
-                    {renderEditableField('bride_name', 'Bride Name', state.tenant.bride_name)}
-                    {renderEditableField('groom_name', 'Groom Name', state.tenant.groom_name)}
-                    {renderEditableField('wedding_date', 'Wedding Date', state.tenant.wedding_date, 'date')}
-                    <div>
-                      <Text strong>Tenant Slug:</Text>
-                      <div style={{ marginTop: 4 }}>
-                        <Text code>{state.tenant.slug}</Text>
-                      </div>
-                    </div>
-                  </Space>
-                </Card>
-              </Col>
+        <Tabs
+          defaultActiveKey="overview"
+          type="card"
+          items={[
+            {
+              key: 'overview',
+              label: 'Overview',
+              children: (
+                <Row gutter={[24, 24]}>
+                  <Col xs={24} lg={12}>
+                    <Card title="Basic Information" size="small">
+                      <Space direction="vertical" style={{ width: '100%' }} size="large">
+                        {renderEditableField('bride_name', 'Bride Name', state.tenant.bride_name)}
+                        {renderEditableField('groom_name', 'Groom Name', state.tenant.groom_name)}
+                        {renderEditableField('wedding_date', 'Wedding Date', state.tenant.wedding_date, 'date')}
+                        <div>
+                          <Text strong>Tenant Slug:</Text>
+                          <div style={{ marginTop: 4 }}>
+                            <Text code>{state.tenant.slug}</Text>
+                          </div>
+                        </div>
+                      </Space>
+                    </Card>
+                  </Col>
 
-              <Col xs={24} lg={12}>
-                <Card title="Contact Information" size="small">
-                  <Space direction="vertical" style={{ width: '100%' }} size="large">
-                    {renderEditableField('email', 'Email', state.tenant.email, 'email')}
-                    {renderEditableField('phone', 'Phone', state.tenant.phone, 'phone')}
-                    <div>
-                      <Text strong>Created:</Text>
-                      <div style={{ marginTop: 4 }}>
-                        <Text>{dayjs(state.tenant.created_at).format('MMM DD, YYYY HH:mm')}</Text>
-                      </div>
-                    </div>
-                    <div>
-                      <Text strong>Last Updated:</Text>
-                      <div style={{ marginTop: 4 }}>
-                        <Text>{dayjs(state.tenant.updated_at).format('MMM DD, YYYY HH:mm')}</Text>
-                      </div>
-                    </div>
-                  </Space>
-                </Card>
-              </Col>
+                  <Col xs={24} lg={12}>
+                    <Card title="Contact Information" size="small">
+                      <Space direction="vertical" style={{ width: '100%' }} size="large">
+                        {renderEditableField('email', 'Email', state.tenant.email, 'email')}
+                        {renderEditableField('phone', 'Phone', state.tenant.phone, 'phone')}
+                        <div>
+                          <Text strong>Created:</Text>
+                          <div style={{ marginTop: 4 }}>
+                            <Text>{dayjs(state.tenant.created_at).format('MMM DD, YYYY HH:mm')}</Text>
+                          </div>
+                        </div>
+                        <div>
+                          <Text strong>Last Updated:</Text>
+                          <div style={{ marginTop: 4 }}>
+                            <Text>{dayjs(state.tenant.updated_at).format('MMM DD, YYYY HH:mm')}</Text>
+                          </div>
+                        </div>
+                      </Space>
+                    </Card>
+                  </Col>
 
-              <Col xs={24}>
-                <Card title="Venue Information" size="small">
-                  <Space direction="vertical" style={{ width: '100%' }} size="large">
-                    {renderEditableField('venue_name', 'Venue Name', state.tenant.venue_name)}
-                    {renderEditableField('venue_address', 'Venue Address', state.tenant.venue_address, 'textarea')}
-                    {renderEditableField('venue_map_link', 'Map Link', state.tenant.venue_map_link, 'url')}
-                  </Space>
-                </Card>
-              </Col>
-            </Row>
-          </TabPane>
+                  <Col xs={24}>
+                    <Card title="Venue Information" size="small">
+                      <Space direction="vertical" style={{ width: '100%' }} size="large">
+                        {renderEditableField('venue_name', 'Venue Name', state.tenant.venue_name)}
+                        {renderEditableField('venue_address', 'Venue Address', state.tenant.venue_address, 'textarea')}
+                        {renderEditableField('venue_map_link', 'Map Link', state.tenant.venue_map_link, 'url')}
+                      </Space>
+                    </Card>
+                  </Col>
+                </Row>
+              ),
+            },
+            {
+              key: 'theme',
+              label: 'Theme Configuration',
+              children: (
+                <Row gutter={[24, 24]}>
+                  <Col xs={24} lg={12}>
+                    <Card title="Color Settings" size="small">
+                      <Space direction="vertical" style={{ width: '100%' }} size="large">
+                        {renderColorField('theme_primary_color', 'Primary Color', state.tenant.theme_primary_color)}
+                        {renderColorField('theme_secondary_color', 'Secondary Color', state.tenant.theme_secondary_color)}
+                      </Space>
+                    </Card>
+                  </Col>
 
-          <TabPane tab="Theme Configuration" key="theme">
-            <Row gutter={[24, 24]}>
-              <Col xs={24} lg={12}>
-                <Card title="Color Settings" size="small">
-                  <Space direction="vertical" style={{ width: '100%' }} size="large">
-                    {renderColorField('theme_primary_color', 'Primary Color', state.tenant.theme_primary_color)}
-                    {renderColorField('theme_secondary_color', 'Secondary Color', state.tenant.theme_secondary_color)}
-                  </Space>
-                </Card>
-              </Col>
-
-              <Col xs={24} lg={12}>
-                <Card title="Theme Preview" size="small">
-                  <div style={{ padding: 16 }}>
-                    <div
-                      style={{
-                        background: `linear-gradient(135deg, ${state.tenant.theme_primary_color}, ${state.tenant.theme_secondary_color})`,
-                        padding: 24,
-                        borderRadius: 8,
-                        color: '#fff',
-                        textAlign: 'center',
-                      }}
-                    >
-                      <Title level={4} style={{ color: '#fff', margin: 0 }}>
-                        {state.tenant.bride_name} & {state.tenant.groom_name}
-                      </Title>
-                      <Text style={{ color: '#fff', opacity: 0.9 }}>
-                        {dayjs(state.tenant.wedding_date).format('MMMM DD, YYYY')}
-                      </Text>
-                    </div>
-                    <div style={{ marginTop: 16, textAlign: 'center' }}>
-                      <Button
-                        type="primary"
-                        style={{ backgroundColor: state.tenant.theme_primary_color, borderColor: state.tenant.theme_primary_color }}
-                      >
-                        Primary Button
-                      </Button>
-                      <Button
-                        style={{
-                          marginLeft: 8,
-                          backgroundColor: state.tenant.theme_secondary_color,
-                          borderColor: state.tenant.theme_secondary_color,
-                          color: '#000'
-                        }}
-                      >
-                        Secondary Button
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
-              </Col>
-            </Row>
-          </TabPane>
-
-          <TabPane tab="Status & Settings" key="settings">
-            <Row gutter={[24, 24]}>
-              <Col xs={24} lg={12}>
-                <Card title="Tenant Status" size="small">
-                  <Space direction="vertical" style={{ width: '100%' }} size="large">
-                    <div>
-                      <Text strong>Current Status:</Text>
-                      <div style={{ marginTop: 8 }}>
-                        <Tag color={state.tenant.is_active ? 'green' : 'red'} style={{ fontSize: 14, padding: '4px 12px' }}>
-                          {state.tenant.is_active ? 'Active' : 'Inactive'}
-                        </Tag>
-                      </div>
-                    </div>
-
-                    <Divider />
-
-                    <div>
-                      <Text strong>Status Management:</Text>
-                      <div style={{ marginTop: 8 }}>
-                        <Space direction="vertical">
-                          <Button
-                            type={state.tenant.is_active ? 'default' : 'primary'}
-                            icon={state.tenant.is_active ? <StopOutlined /> : <CheckCircleOutlined />}
-                            onClick={() => updateTenantStatus(!state.tenant!.is_active)}
-                            loading={state.saving}
-                            block
-                          >
-                            {state.tenant.is_active ? 'Deactivate Tenant' : 'Activate Tenant'}
-                          </Button>
-                          <Text type="secondary" style={{ fontSize: 12 }}>
-                            {state.tenant.is_active
-                              ? 'Deactivating will hide this tenant from active lists and prevent new RSVPs'
-                              : 'Activating will make this tenant visible and allow RSVP submissions'
-                            }
+                  <Col xs={24} lg={12}>
+                    <Card title="Theme Preview" size="small">
+                      <div style={{ padding: 16 }}>
+                        <div
+                          style={{
+                            background: `linear-gradient(135deg, ${state.tenant.theme_primary_color}, ${state.tenant.theme_secondary_color})`,
+                            padding: 24,
+                            borderRadius: 8,
+                            color: '#fff',
+                            textAlign: 'center',
+                          }}
+                        >
+                          <Title level={4} style={{ color: '#fff', margin: 0 }}>
+                            {state.tenant.bride_name} & {state.tenant.groom_name}
+                          </Title>
+                          <Text style={{ color: '#fff', opacity: 0.9 }}>
+                            {dayjs(state.tenant.wedding_date).format('MMMM DD, YYYY')}
                           </Text>
-                        </Space>
+                        </div>
+                        <div style={{ marginTop: 16, textAlign: 'center' }}>
+                          <Button
+                            type="primary"
+                            style={{ backgroundColor: state.tenant.theme_primary_color, borderColor: state.tenant.theme_primary_color }}
+                          >
+                            Primary Button
+                          </Button>
+                          <Button
+                            style={{
+                              marginLeft: 8,
+                              backgroundColor: state.tenant.theme_secondary_color,
+                              borderColor: state.tenant.theme_secondary_color,
+                              color: '#000'
+                            }}
+                          >
+                            Secondary Button
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                  </Space>
-                </Card>
-              </Col>
+                    </Card>
+                  </Col>
+                </Row>
+              ),
+            },
+            {
+              key: 'settings',
+              label: 'Status & Settings',
+              children: (
+                <Row gutter={[24, 24]}>
+                  <Col xs={24} lg={12}>
+                    <Card title="Tenant Status" size="small">
+                      <Space direction="vertical" style={{ width: '100%' }} size="large">
+                        <div>
+                          <Text strong>Current Status:</Text>
+                          <div style={{ marginTop: 8 }}>
+                            <Tag color={state.tenant.is_active ? 'green' : 'red'} style={{ fontSize: 14, padding: '4px 12px' }}>
+                              {state.tenant.is_active ? 'Active' : 'Inactive'}
+                            </Tag>
+                          </div>
+                        </div>
 
-              <Col xs={24} lg={12}>
-                <Card title="System Information" size="small">
-                  <Space direction="vertical" style={{ width: '100%' }} size="large">
-                    <div>
-                      <Text strong>Tenant ID:</Text>
-                      <div style={{ marginTop: 4 }}>
-                        <Text code>{state.tenant.id}</Text>
-                      </div>
-                    </div>
-                    <div>
-                      <Text strong>Slug:</Text>
-                      <div style={{ marginTop: 4 }}>
-                        <Text code>{state.tenant.slug}</Text>
-                      </div>
-                    </div>
-                    <div>
-                      <Text strong>Created At:</Text>
-                      <div style={{ marginTop: 4 }}>
-                        <Text>{dayjs(state.tenant.created_at).format('MMMM DD, YYYY [at] HH:mm')}</Text>
-                      </div>
-                    </div>
-                    <div>
-                      <Text strong>Last Updated:</Text>
-                      <div style={{ marginTop: 4 }}>
-                        <Text>{dayjs(state.tenant.updated_at).format('MMMM DD, YYYY [at] HH:mm')}</Text>
-                      </div>
-                    </div>
-                  </Space>
-                </Card>
-              </Col>
-            </Row>
-          </TabPane>
-        </Tabs>
+                        <Divider />
+
+                        <div>
+                          <Text strong>Status Management:</Text>
+                          <div style={{ marginTop: 8 }}>
+                            <Space direction="vertical">
+                              <Button
+                                type={state.tenant.is_active ? 'default' : 'primary'}
+                                icon={state.tenant.is_active ? <StopOutlined /> : <CheckCircleOutlined />}
+                                onClick={() => updateTenantStatus(!state.tenant!.is_active)}
+                                loading={state.saving}
+                                block
+                              >
+                                {state.tenant.is_active ? 'Deactivate Tenant' : 'Activate Tenant'}
+                              </Button>
+                              <Text type="secondary" style={{ fontSize: 12 }}>
+                                {state.tenant.is_active
+                                  ? 'Deactivating will hide this tenant from active lists and prevent new RSVPs'
+                                  : 'Activating will make this tenant visible and allow RSVP submissions'
+                                }
+                              </Text>
+                            </Space>
+                          </div>
+                        </div>
+                      </Space>
+                    </Card>
+                  </Col>
+
+                  <Col xs={24} lg={12}>
+                    <Card title="System Information" size="small">
+                      <Space direction="vertical" style={{ width: '100%' }} size="large">
+                        <div>
+                          <Text strong>Tenant ID:</Text>
+                          <div style={{ marginTop: 4 }}>
+                            <Text code>{state.tenant.id}</Text>
+                          </div>
+                        </div>
+                        <div>
+                          <Text strong>Slug:</Text>
+                          <div style={{ marginTop: 4 }}>
+                            <Text code>{state.tenant.slug}</Text>
+                          </div>
+                        </div>
+                        <div>
+                          <Text strong>Created At:</Text>
+                          <div style={{ marginTop: 4 }}>
+                            <Text>{dayjs(state.tenant.created_at).format('MMMM DD, YYYY [at] HH:mm')}</Text>
+                          </div>
+                        </div>
+                        <div>
+                          <Text strong>Last Updated:</Text>
+                          <div style={{ marginTop: 4 }}>
+                            <Text>{dayjs(state.tenant.updated_at).format('MMMM DD, YYYY [at] HH:mm')}</Text>
+                          </div>
+                        </div>
+                      </Space>
+                    </Card>
+                  </Col>
+                </Row>
+              ),
+            },
+          ]}
+        />
       </div>
 
       {/* Theme Preview Modal */}
