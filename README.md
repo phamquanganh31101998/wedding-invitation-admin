@@ -25,12 +25,14 @@ A modern web application for managing wedding invitations, built with Next.js 15
 ## Getting Started
 
 1. **Install dependencies**:
+
    ```bash
    yarn install
    ```
 
 2. **Set up environment variables**:
    Copy `.env.local` and update the values:
+
    ```bash
    NEXTAUTH_URL=http://localhost:3000
    NEXTAUTH_SECRET=your-secret-key-here
@@ -39,6 +41,7 @@ A modern web application for managing wedding invitations, built with Next.js 15
    ```
 
 3. **Run the development server**:
+
    ```bash
    yarn dev
    ```

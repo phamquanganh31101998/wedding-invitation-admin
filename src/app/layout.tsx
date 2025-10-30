@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
-import { ConfigProvider } from 'antd';
-import AuthSessionProvider from '@/components/SessionProvider';
+import Providers from '@/components/providers/Providers';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -19,17 +18,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <AuthSessionProvider>
-          <ConfigProvider
-            theme={{
-              token: {
-                colorPrimary: '#1890ff',
-              },
-            }}
-          >
-            {children}
-          </ConfigProvider>
-        </AuthSessionProvider>
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );
