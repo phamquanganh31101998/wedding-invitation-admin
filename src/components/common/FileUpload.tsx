@@ -1,7 +1,11 @@
 'use client';
 
 import { Upload, Image, message, Button, Spin } from 'antd';
-import { UploadOutlined, DeleteOutlined, FileOutlined } from '@ant-design/icons';
+import {
+  UploadOutlined,
+  DeleteOutlined,
+  FileOutlined,
+} from '@ant-design/icons';
 import { useState } from 'react';
 import type { UploadFile } from 'antd/es/upload/interface';
 
@@ -33,8 +37,8 @@ export const FileUpload = ({
   maxHeight = 200,
   showPreview = true,
   disabled = false,
-  acceptedTypes = "image/*",
-  isImageOnly = true
+  acceptedTypes = 'image/*',
+  isImageOnly = true,
 }: FileUploadProps) => {
   const [loading, setLoading] = useState(false);
   const [fileUrl, setFileUrl] = useState(currentFileUrl);
@@ -54,7 +58,7 @@ export const FileUpload = ({
     try {
       const response = await fetch(`/api/tenants/${tenantId}/files`, {
         method: 'POST',
-        body: formData
+        body: formData,
       });
 
       const result = await response.json();
@@ -103,7 +107,8 @@ export const FileUpload = ({
       }
     } else {
       // For audio files
-      const isValidType = file.type?.startsWith('image/') || file.type?.startsWith('audio/');
+      const isValidType =
+        file.type?.startsWith('image/') || file.type?.startsWith('audio/');
       if (!isValidType) {
         message.error('You can only upload image or audio files!');
         return false;
@@ -116,17 +121,17 @@ export const FileUpload = ({
       return false;
     }
 
-    handleUpload(file as File);
+    handleUpload(file.originFileObj as File);
     return false; // Prevent default upload
   };
 
-  const isImageFile = fileUrl && (
-    fileUrl.includes('.jpg') ||
-    fileUrl.includes('.jpeg') ||
-    fileUrl.includes('.png') ||
-    fileUrl.includes('.gif') ||
-    fileUrl.includes('.webp')
-  );
+  const isImageFile =
+    fileUrl &&
+    (fileUrl.includes('.jpg') ||
+      fileUrl.includes('.jpeg') ||
+      fileUrl.includes('.png') ||
+      fileUrl.includes('.gif') ||
+      fileUrl.includes('.webp'));
 
   return (
     <div className="file-upload-container">
@@ -140,25 +145,29 @@ export const FileUpload = ({
                 maxWidth,
                 maxHeight,
                 objectFit: 'cover',
-                borderRadius: 8
+                borderRadius: 8,
               }}
               preview={{
-                mask: 'Preview'
+                mask: 'Preview',
               }}
             />
           ) : (
-            <div style={{
-              width: maxWidth,
-              height: 100,
-              border: '1px dashed #d9d9d9',
-              borderRadius: 8,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: '#fafafa'
-            }}>
+            <div
+              style={{
+                width: maxWidth,
+                height: 100,
+                border: '1px dashed #d9d9d9',
+                borderRadius: 8,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: '#fafafa',
+              }}
+            >
               <div style={{ textAlign: 'center' }}>
-                <FileOutlined style={{ fontSize: 24, color: '#999', marginBottom: 8 }} />
+                <FileOutlined
+                  style={{ fontSize: 24, color: '#999', marginBottom: 8 }}
+                />
                 <div style={{ fontSize: 12, color: '#666' }}>
                   {fileName || 'Audio File'}
                 </div>
@@ -176,7 +185,7 @@ export const FileUpload = ({
                 position: 'absolute',
                 top: 8,
                 right: 8,
-                backgroundColor: 'rgba(255, 255, 255, 0.8)'
+                backgroundColor: 'rgba(255, 255, 255, 0.8)',
               }}
               size="small"
             />
@@ -190,11 +199,7 @@ export const FileUpload = ({
         beforeUpload={beforeUpload}
         disabled={disabled || loading}
       >
-        <Button
-          icon={<UploadOutlined />}
-          loading={loading}
-          disabled={disabled}
-        >
+        <Button icon={<UploadOutlined />} loading={loading} disabled={disabled}>
           {loading ? 'Uploading...' : fileUrl ? 'Change File' : 'Upload File'}
         </Button>
       </Upload>

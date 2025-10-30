@@ -1,4 +1,4 @@
-import { db } from '@/lib/db';
+import { sql } from '@/lib/db';
 
 export interface TenantFile {
   id: number;
@@ -29,14 +29,14 @@ export class FileRepository {
     `;
 
     try {
-      const result = await db.query(query, [
+      const result = await sql.query(query, [
         tenantId,
         type,
         url,
         name,
         displayOrder,
       ]);
-      return result.rows[0];
+      return result[0] as TenantFile;
     } catch (error) {
       console.error('Error saving file reference:', error);
       throw new Error('Failed to save file reference');
@@ -56,8 +56,8 @@ export class FileRepository {
     `;
 
     try {
-      const result = await db.query(query, [tenantId]);
-      return result.rows;
+      const result = await sql.query(query, [tenantId]);
+      return result as TenantFile[];
     } catch (error) {
       console.error('Error fetching tenant files:', error);
       throw new Error('Failed to fetch tenant files');
@@ -80,8 +80,8 @@ export class FileRepository {
     `;
 
     try {
-      const result = await db.query(query, [tenantId, type]);
-      return result.rows;
+      const result = await sql.query(query, [tenantId, type]);
+      return result as TenantFile[];
     } catch (error) {
       console.error('Error fetching files by type:', error);
       throw new Error('Failed to fetch files by type');
@@ -95,7 +95,7 @@ export class FileRepository {
     const query = `DELETE FROM files WHERE id = $1`;
 
     try {
-      await db.query(query, [fileId]);
+      await sql.query(query, [fileId]);
     } catch (error) {
       console.error('Error deleting file reference:', error);
       throw new Error('Failed to delete file reference');
@@ -134,7 +134,7 @@ export class FileRepository {
     `;
 
     try {
-      await db.query(query, values);
+      await sql.query(query, values);
     } catch (error) {
       console.error('Error updating file metadata:', error);
       throw new Error('Failed to update file metadata');
@@ -153,8 +153,8 @@ export class FileRepository {
     `;
 
     try {
-      const result = await db.query(query, [fileId]);
-      return result.rows[0] || null;
+      const result = await sql.query(query, [fileId]);
+      return (result[0] as TenantFile) || null;
     } catch (error) {
       console.error('Error fetching file by ID:', error);
       throw new Error('Failed to fetch file');

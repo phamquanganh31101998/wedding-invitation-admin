@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { FileService } from '@/lib/services/file-service';
-import { FileRepository } from '@/lib/repositories/fileRepository';
+import { FileRepository } from '@/lib/repositories/file-repository';
 import { validateFileType } from '@/lib/utils/file';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check authentication
@@ -15,7 +15,8 @@ export async function POST(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const tenantId = parseInt(params.id);
+    const { id } = await params;
+    const tenantId = parseInt(id);
     if (isNaN(tenantId)) {
       return NextResponse.json({ error: 'Invalid tenant ID' }, { status: 400 });
     }
@@ -88,7 +89,7 @@ export async function POST(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check authentication
@@ -97,7 +98,8 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const tenantId = parseInt(params.id);
+    const { id } = await params;
+    const tenantId = parseInt(id);
     if (isNaN(tenantId)) {
       return NextResponse.json({ error: 'Invalid tenant ID' }, { status: 400 });
     }
@@ -129,7 +131,7 @@ export async function GET(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check authentication
@@ -138,7 +140,8 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const tenantId = parseInt(params.id);
+    const { id } = await params;
+    const tenantId = parseInt(id);
     if (isNaN(tenantId)) {
       return NextResponse.json({ error: 'Invalid tenant ID' }, { status: 400 });
     }
