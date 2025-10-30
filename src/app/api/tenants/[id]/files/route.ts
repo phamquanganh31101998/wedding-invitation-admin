@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { FileService } from '@/lib/services/fileService';
+import { FileService } from '@/lib/services/file-service';
 import { FileRepository } from '@/lib/repositories/fileRepository';
+import { validateFileType } from '@/lib/utils/file';
 
 export async function POST(
   request: NextRequest,
@@ -37,7 +38,7 @@ export async function POST(
     }
 
     // Validate file type
-    if (!FileService.validateFileType(file)) {
+    if (!validateFileType(file)) {
       return NextResponse.json(
         {
           error:
