@@ -76,3 +76,4 @@ yarn add <package>   # Add new dependency
 - Don't create test files
 - Use NiceModal for Modal
 - Try reuse existing components as much as possible
+- Separate components into smaller components (single concerns)

@@ -1,23 +1,19 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import {
   Typography,
   Button,
   Card,
-  message,
 } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useModal } from '@ebay/nice-modal-react';
-import { TenantUI } from '@/types/tenant';
 import DashboardBreadcrumb from '@/components/common/DashboardBreadcrumb';
 import CreateTenantModal from './components/CreateTenantModal/CreateTenantModal';
 import { Filter, TenantList } from './components';
+import { useGetTenantList } from './services';
 
 const { Title } = Typography;
 
-interface TenantListManagementState {
-  tenants: TenantUI[];
-  loading: boolean;
-  total: number;
+interface TenantListManagementParams {
   currentPage: number;
   pageSize: number;
   searchQuery: string;
@@ -25,64 +21,26 @@ interface TenantListManagementState {
 }
 
 export default function TenantListManagement() {
-  const [state, setState] = useState<TenantListManagementState>({
-    tenants: [],
-    loading: false,
-    total: 0,
+  const [params, setParams] = useState<TenantListManagementParams>({
     currentPage: 1,
     pageSize: 10,
     searchQuery: '',
     statusFilter: undefined,
   });
 
+  // Use the tenant service hook
+  const { tenantList, total, isLoading, refetch } = useGetTenantList({
+    page: params.currentPage,
+    limit: params.pageSize,
+    search: params.searchQuery || undefined,
+    is_active: params.statusFilter,
+  });
+
   const createTenantModal = useModal(CreateTenantModal);
-
-  // Load tenants
-  const loadTenants = useCallback(async () => {
-    setState(prev => ({ ...prev, loading: true }));
-
-    try {
-      const params = new URLSearchParams({
-        page: state.currentPage.toString(),
-        limit: state.pageSize.toString(),
-      });
-
-      if (state.searchQuery) {
-        params.append('search', state.searchQuery);
-      }
-
-      if (state.statusFilter !== undefined) {
-        params.append('is_active', state.statusFilter.toString());
-      }
-
-      const response = await fetch(`/api/tenants?${params}`);
-      const result = await response.json();
-
-      if (result.success) {
-        setState(prev => ({
-          ...prev,
-          tenants: result.data.tenants,
-          total: result.data.total,
-          loading: false,
-        }));
-      } else {
-        message.error(result.error?.message || 'Failed to load tenants');
-        setState(prev => ({ ...prev, loading: false }));
-      }
-    } catch (error) {
-      message.error('Failed to load tenants');
-      setState(prev => ({ ...prev, loading: false }));
-    }
-  }, [state.currentPage, state.pageSize, state.searchQuery, state.statusFilter]);
-
-  // Load tenants on mount and when dependencies change
-  useEffect(() => {
-    loadTenants();
-  }, [loadTenants]);
 
   // Handle successful tenant creation
   const handleTenantCreated = () => {
-    loadTenants();
+    refetch();
   };
 
   // Show create tenant modal
@@ -92,7 +50,7 @@ export default function TenantListManagement() {
 
   // Handle search
   const handleSearch = (value: string) => {
-    setState(prev => ({
+    setParams(prev => ({
       ...prev,
       searchQuery: value,
       currentPage: 1
@@ -101,7 +59,7 @@ export default function TenantListManagement() {
 
   // Handle status filter change
   const handleStatusFilterChange = (value: boolean | undefined) => {
-    setState(prev => ({
+    setParams(prev => ({
       ...prev,
       statusFilter: value,
       currentPage: 1
@@ -110,7 +68,7 @@ export default function TenantListManagement() {
 
   // Handle pagination change
   const handleTableChange = (page: number, pageSize: number) => {
-    setState(prev => ({
+    setParams(prev => ({
       ...prev,
       currentPage: page,
       pageSize: pageSize
@@ -146,16 +104,16 @@ export default function TenantListManagement() {
           <Filter
             onSearch={handleSearch}
             onStatusFilterChange={handleStatusFilterChange}
-            onRefresh={loadTenants}
-            loading={state.loading}
+            onRefresh={refetch}
+            loading={isLoading}
           />
 
           <TenantList
-            tenants={state.tenants}
-            loading={state.loading}
-            currentPage={state.currentPage}
-            pageSize={state.pageSize}
-            total={state.total}
+            tenants={tenantList}
+            loading={isLoading}
+            currentPage={params.currentPage}
+            pageSize={params.pageSize}
+            total={total}
             onTableChange={handleTableChange}
           />
         </Card>
