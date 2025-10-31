@@ -1,14 +1,5 @@
 import { sql } from '@/lib/db';
-
-export interface TenantFile {
-  id: number;
-  tenantId: number;
-  type: string;
-  url: string;
-  name?: string;
-  displayOrder: number;
-  createdAt: Date;
-}
+import { IFile } from '@/types/file';
 
 export class FileRepository {
   /**
@@ -20,7 +11,7 @@ export class FileRepository {
     type: string,
     name?: string,
     displayOrder: number = 0
-  ): Promise<TenantFile> {
+  ): Promise<IFile> {
     const query = `
       INSERT INTO files (tenant_id, type, url, name, display_order)
       VALUES ($1, $2, $3, $4, $5)
@@ -36,7 +27,7 @@ export class FileRepository {
         name,
         displayOrder,
       ]);
-      return result[0] as TenantFile;
+      return result[0] as IFile;
     } catch (error) {
       console.error('Error saving file reference:', error);
       throw new Error('Failed to save file reference');
@@ -46,7 +37,7 @@ export class FileRepository {
   /**
    * Get all files for a tenant
    */
-  static async getFilesByTenant(tenantId: number): Promise<TenantFile[]> {
+  static async getFilesByTenant(tenantId: number): Promise<IFile[]> {
     const query = `
       SELECT id, tenant_id as "tenantId", type, url, name, 
              display_order as "displayOrder", created_at as "createdAt"
@@ -57,7 +48,7 @@ export class FileRepository {
 
     try {
       const result = await sql.query(query, [tenantId]);
-      return result as TenantFile[];
+      return result as IFile[];
     } catch (error) {
       console.error('Error fetching tenant files:', error);
       throw new Error('Failed to fetch tenant files');
@@ -70,7 +61,7 @@ export class FileRepository {
   static async getFilesByType(
     tenantId: number,
     type: string
-  ): Promise<TenantFile[]> {
+  ): Promise<IFile[]> {
     const query = `
       SELECT id, tenant_id as "tenantId", type, url, name, 
              display_order as "displayOrder", created_at as "createdAt"
@@ -81,7 +72,7 @@ export class FileRepository {
 
     try {
       const result = await sql.query(query, [tenantId, type]);
-      return result as TenantFile[];
+      return result as IFile[];
     } catch (error) {
       console.error('Error fetching files by type:', error);
       throw new Error('Failed to fetch files by type');
@@ -144,7 +135,7 @@ export class FileRepository {
   /**
    * Get file by ID
    */
-  static async getFileById(fileId: number): Promise<TenantFile | null> {
+  static async getFileById(fileId: number): Promise<IFile | null> {
     const query = `
       SELECT id, tenant_id as "tenantId", type, url, name, 
              display_order as "displayOrder", created_at as "createdAt"
@@ -154,7 +145,7 @@ export class FileRepository {
 
     try {
       const result = await sql.query(query, [fileId]);
-      return (result[0] as TenantFile) || null;
+      return (result[0] as IFile) || null;
     } catch (error) {
       console.error('Error fetching file by ID:', error);
       throw new Error('Failed to fetch file');
