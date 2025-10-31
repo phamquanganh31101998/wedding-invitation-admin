@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Typography, Button, Space, message, Tag } from 'antd';
+import { Typography, Button, Space, Tag } from 'antd';
 import {
   ArrowLeftOutlined,
   CheckCircleOutlined,
@@ -12,19 +12,16 @@ import {
   TeamOutlined,
 } from '@ant-design/icons';
 import { useModal } from '@ebay/nice-modal-react';
-import { TenantUI, TenantUpdateRequestUI } from '@/types/tenant';
 import DashboardBreadcrumb from '@/components/common/DashboardBreadcrumb';
 import TenantDetailTabs from './components/TenantDetailTabs/TenantDetailTabs';
 import ThemePreviewModal from './components/ThemePreviewModal/ThemePreviewModal';
+import { useGetTenantDetail, useUpdateTenantField, useUpdateTenantStatus } from './services';
 
 const { Title } = Typography;
 
-interface TenantDetailState {
-  tenant: TenantUI | null;
-  loading: boolean;
+interface TenantDetailEditState {
   editingField: string | null;
   editingValues: Record<string, any>;
-  saving: boolean;
 }
 
 interface TenantDetailManagementProps {
@@ -35,71 +32,42 @@ export default function TenantDetailManagement({ tenantId }: TenantDetailManagem
   const router = useRouter();
   const themePreviewModal = useModal(ThemePreviewModal);
 
-  const [state, setState] = useState<TenantDetailState>({
-    tenant: null,
-    loading: false,
+  // Only state for edit values
+  const [editState, setEditState] = useState<TenantDetailEditState>({
     editingField: null,
     editingValues: {},
-    saving: false,
   });
 
-  // Load tenant data
-  const loadTenant = useCallback(async () => {
-    if (!tenantId) return;
+  // Use tenant services
+  const { tenant, isLoading, error, refetch } = useGetTenantDetail(tenantId);
+  const { updateField, isUpdating: isUpdatingField } = useUpdateTenantField(tenantId);
+  const { updateStatus, isUpdating: isUpdatingStatus } = useUpdateTenantStatus(tenantId);
 
-    setState(prev => ({ ...prev, loading: true }));
-
-    try {
-      const response = await fetch(`/api/tenants/${tenantId}`);
-      const result = await response.json();
-
-      if (result.success) {
-        setState(prev => ({
-          ...prev,
-          tenant: result.data,
-          loading: false,
-        }));
-      } else {
-        message.error(result.error?.message || 'Failed to load tenant');
-        setState(prev => ({ ...prev, loading: false }));
-        if (result.error?.code === 'TENANT_NOT_FOUND') {
-          router.push('/tenants');
-        }
-      }
-    } catch (error) {
-      message.error('Failed to load tenant');
-      setState(prev => ({ ...prev, loading: false }));
-    }
-  }, [tenantId, router]);
-
-  // Load tenant on mount
-  useEffect(() => {
-    if (tenantId) {
-      loadTenant();
-    }
-  }, [tenantId, loadTenant]);
+  // Handle error or not found
+  if (error && error.message.includes('TENANT_NOT_FOUND')) {
+    router.push('/tenants');
+    return null;
+  }
 
   // Start editing a field
   const startEditing = (field: string, currentValue: any) => {
-    setState(prev => ({
-      ...prev,
+    setEditState({
       editingField: field,
       editingValues: { [field]: currentValue },
-    }));
+    });
   };
 
   // Cancel editing
   const cancelEditing = () => {
-    setState(prev => ({
-      ...prev,
+    setEditState({
       editingField: null,
       editingValues: {},
-    }));
+    });
   };
 
   // Update editing values
   const updateEditingValue = (field: string, value: any) => {
-    setState(prev => ({
+    setEditState(prev => ({
       ...prev,
       editingValues: { ...prev.editingValues, [field]: value },
     }));
@@ -107,81 +75,45 @@ export default function TenantDetailManagement({ tenantId }: TenantDetailManagem
 
   // Save field update
   const saveFieldUpdate = async (field: string, value: any) => {
-    if (!state.tenant) return;
-
-    setState(prev => ({ ...prev, saving: true }));
+    if (!tenant) return;
 
     try {
-      const updateData: TenantUpdateRequestUI = { [field]: value };
+      const updateData = { [field]: value };
+      await updateField(updateData);
 
-      const response = await fetch(`/api/tenants/${state.tenant.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updateData),
+      // Clear editing state on success
+      setEditState({
+        editingField: null,
+        editingValues: {},
       });
-
-      const result = await response.json();
-
-      if (result.success) {
-        setState(prev => ({
-          ...prev,
-          tenant: result.data,
-          editingField: null,
-          editingValues: {},
-          saving: false,
-        }));
-        message.success('Field updated successfully');
-      } else {
-        message.error(result.error?.message || 'Failed to update field');
-        setState(prev => ({ ...prev, saving: false }));
-      }
     } catch (error) {
-      message.error('Failed to update field');
-      setState(prev => ({ ...prev, saving: false }));
+      // Error handling is done in the hook
     }
   };
 
   // Update tenant status
-  const updateTenantStatus = async (isActive: boolean) => {
-    if (!state.tenant) return;
-
-    setState(prev => ({ ...prev, saving: true }));
+  const handleUpdateTenantStatus = async (isActive: boolean) => {
+    if (!tenant) return;
 
     try {
-      const response = await fetch(`/api/tenants/${state.tenant.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isActive }),
-      });
-
-      const result = await response.json();
-
-      if (result.success) {
-        setState(prev => ({
-          ...prev,
-          tenant: result.data,
-          saving: false,
-        }));
-        const action = isActive ? 'activated' : 'deactivated';
-        message.success(`Tenant ${action} successfully`);
-      } else {
-        message.error(result.error?.message || `Failed to update tenant status`);
-        setState(prev => ({ ...prev, saving: false }));
-      }
+      await updateStatus({ isActive });
     } catch (error) {
-      message.error('Failed to update tenant status');
-      setState(prev => ({ ...prev, saving: false }));
+      // Error handling is done in the hook
     }
   };
 
   // Show theme preview
   const showThemePreview = () => {
-    if (state.tenant) {
-      themePreviewModal.show({ tenant: state.tenant });
+    if (tenant) {
+      themePreviewModal.show({ tenant });
     }
   };
 
-  if (!state.tenant) {
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!tenant) {
     return null;
   }
 
@@ -205,7 +137,7 @@ export default function TenantDetailManagement({ tenantId }: TenantDetailManagem
               ),
             },
             {
-              title: `${state.tenant.brideName} & ${state.tenant.groomName}`,
+              title: `${tenant.brideName} & ${tenant.groomName}`,
             },
           ]}
         />
@@ -226,20 +158,20 @@ export default function TenantDetailManagement({ tenantId }: TenantDetailManagem
               Tenants List
             </Button>
             <Title level={2} style={{ margin: 0 }}>
-              {state.tenant.brideName} & {state.tenant.groomName}
+              {tenant.brideName} & {tenant.groomName}
             </Title>
-            <Tag color={state.tenant.isActive ? 'green' : 'red'}>
-              {state.tenant.isActive ? 'Active' : 'Inactive'}
+            <Tag color={tenant.isActive ? 'green' : 'red'}>
+              {tenant.isActive ? 'Active' : 'Inactive'}
             </Tag>
           </div>
           <Space>
             <Button
-              type={state.tenant.isActive ? 'default' : 'primary'}
-              icon={state.tenant.isActive ? <StopOutlined /> : <CheckCircleOutlined />}
-              onClick={() => updateTenantStatus(!state.tenant!.isActive)}
-              loading={state.saving}
+              type={tenant.isActive ? 'default' : 'primary'}
+              icon={tenant.isActive ? <StopOutlined /> : <CheckCircleOutlined />}
+              onClick={() => handleUpdateTenantStatus(!tenant.isActive)}
+              loading={isUpdatingStatus}
             >
-              {state.tenant.isActive ? 'Deactivate' : 'Activate'}
+              {tenant.isActive ? 'Deactivate' : 'Activate'}
             </Button>
             <Button
               type="primary"
@@ -253,16 +185,16 @@ export default function TenantDetailManagement({ tenantId }: TenantDetailManagem
 
         {/* Tabs */}
         <TenantDetailTabs
-          tenant={state.tenant}
-          editingField={state.editingField}
-          editingValues={state.editingValues}
-          saving={state.saving}
+          tenant={tenant}
+          editingField={editState.editingField}
+          editingValues={editState.editingValues}
+          saving={isUpdatingField}
           onStartEditing={startEditing}
           onCancelEditing={cancelEditing}
           onUpdateEditingValue={updateEditingValue}
           onSaveFieldUpdate={saveFieldUpdate}
-          onUpdateTenantStatus={updateTenantStatus}
-          onRefreshTenant={loadTenant}
+          onUpdateTenantStatus={handleUpdateTenantStatus}
+          onRefreshTenant={refetch}
         />
       </div>
     </div>

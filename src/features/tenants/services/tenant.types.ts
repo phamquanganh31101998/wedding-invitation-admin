@@ -13,3 +13,11 @@ export interface ITenantListResponse {
   page: number;
   limit: number;
 }
+
+export interface ITenantUpdateParams {
+  [key: string]: any;
+}
+
+export interface ITenantStatusUpdateParams {
+  isActive: boolean;
+}
