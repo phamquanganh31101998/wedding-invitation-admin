@@ -1,10 +1,9 @@
 'use client';
 
-import { Card, Row, Col, Typography, Divider, Space } from 'antd';
+import { Divider } from 'antd';
 import { TenantUI } from '@/types/tenant';
-import { FileUpload } from '@/components/common/FileUpload';
-
-const { Title, Text } = Typography;
+import AudioListSection from './AudioListSection';
+import ImageListSection from './ImageListSection';
 
 interface FilesTabProps {
   tenant: TenantUI;
@@ -15,113 +14,21 @@ export default function FilesTab({
   tenant,
   onFileUploadSuccess,
 }: FilesTabProps) {
-  const handleFileUpload = (fileType: string) => (url: string) => {
-    console.log(`${fileType} uploaded:`, url);
-    onFileUploadSuccess?.();
-  };
-
   return (
     <div>
       {/* Audio Files Section */}
-      <div style={{ marginTop: 32 }}>
-        <Title level={5}>Wedding Music</Title>
-        <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>
-          Upload background music or audio files for the wedding invitation
-        </Text>
-
-        <Row gutter={[16, 16]}>
-          <Col xs={24} sm={12} md={8} lg={6}>
-            <Card title="Background Music" size="small">
-              <Text
-                type="secondary"
-                style={{ display: 'block', marginBottom: 16 }}
-              >
-                Background music for the invitation
-              </Text>
-              <FileUpload
-                tenantId={tenant.id}
-                fileType="background_music"
-                fileName="Wedding background music"
-                onUploadSuccess={handleFileUpload('background_music')}
-                maxWidth={250}
-                maxHeight={100}
-                acceptedTypes="audio/*"
-                isImageOnly={false}
-                showPreview={true}
-              />
-            </Card>
-          </Col>
-
-          <Col xs={24} sm={12} md={8} lg={6}>
-            <Card size="small" style={{ textAlign: 'center', minHeight: 200 }}>
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  height: 150,
-                  color: '#999',
-                }}
-              >
-                <Space direction="vertical" align="center">
-                  <Text type="secondary">Additional Audio</Text>
-                  <Text type="secondary" style={{ fontSize: 12 }}>
-                    Coming Soon
-                  </Text>
-                </Space>
-              </div>
-            </Card>
-          </Col>
-        </Row>
-      </div>
+      <AudioListSection
+        tenantId={tenant.id}
+        onFileUploadSuccess={onFileUploadSuccess}
+      />
 
       <Divider />
 
       {/* Gallery Images Section */}
-      <div style={{ marginTop: 32 }}>
-        <Title level={5}>Gallery Images</Title>
-        <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>
-          Additional photos for the wedding gallery
-        </Text>
-
-        <Row gutter={[16, 16]}>
-          <Col xs={24} sm={12} md={8} lg={6}>
-            <Card title="Gallery Photo 1" size="small">
-              <FileUpload
-                tenantId={tenant.id}
-                fileType="gallery_photo"
-                fileName="Gallery photo"
-                onUploadSuccess={handleFileUpload('gallery_photo')}
-                maxWidth={200}
-                maxHeight={150}
-                acceptedTypes="image/*"
-                isImageOnly={true}
-              />
-            </Card>
-          </Col>
-
-          <Col xs={24} sm={12} md={8} lg={6}>
-            <Card size="small" style={{ textAlign: 'center', minHeight: 200 }}>
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  height: 150,
-                  color: '#999',
-                }}
-              >
-                <Space direction="vertical" align="center">
-                  <Text type="secondary">More Gallery</Text>
-                  <Text type="secondary" style={{ fontSize: 12 }}>
-                    Coming Soon
-                  </Text>
-                </Space>
-              </div>
-            </Card>
-          </Col>
-        </Row>
-      </div>
+      <ImageListSection
+        tenantId={tenant.id}
+        onFileUploadSuccess={onFileUploadSuccess}
+      />
     </div>
   );
 }

@@ -8,6 +8,7 @@ import {
 } from '@ant-design/icons';
 import { useState } from 'react';
 import type { UploadFile } from 'antd/es/upload/interface';
+import { validateFileType, validateFileSize } from '@/lib/utils/file';
 
 interface FileUploadProps {
   tenantId: number;
@@ -22,7 +23,6 @@ interface FileUploadProps {
   showPreview?: boolean;
   disabled?: boolean;
   acceptedTypes?: string;
-  isImageOnly?: boolean;
 }
 
 export const FileUpload = ({
@@ -38,7 +38,6 @@ export const FileUpload = ({
   showPreview = true,
   disabled = false,
   acceptedTypes = 'image/*',
-  isImageOnly = true,
 }: FileUploadProps) => {
   const [loading, setLoading] = useState(false);
   const [fileUrl, setFileUrl] = useState(currentFileUrl);
@@ -98,34 +97,32 @@ export const FileUpload = ({
   };
 
   const beforeUpload = (file: UploadFile) => {
-    // Validate file type based on acceptedTypes
-    if (isImageOnly) {
-      const isImage = file.type?.startsWith('image/');
-      if (!isImage) {
-        message.error('You can only upload image files!');
-        return false;
-      }
-    } else {
-      // For audio files
-      const isValidType =
-        file.type?.startsWith('image/') || file.type?.startsWith('audio/');
-      if (!isValidType) {
-        message.error('You can only upload image or audio files!');
-        return false;
-      }
-    }
+    // Get the actual File object - it could be in originFileObj or the file itself
+    const fileObj = (file.originFileObj || file) as File;
 
-    const isLt50M = file.size! / 1024 / 1024 < 50;
-    if (!isLt50M) {
-      message.error('File must be smaller than 50MB!');
+    // Check if we have a valid File object
+    if (!fileObj || !fileObj.type || !fileObj.size) {
+      message.error('Invalid file object');
       return false;
     }
 
-    handleUpload(file.originFileObj as File);
+    // Validate file type using utility function
+    if (!validateFileType(fileObj)) {
+      message.error('You can only upload image or audio files!');
+      return false;
+    }
+
+    // Validate file size using utility function (default 5MB)
+    if (!validateFileSize(fileObj)) {
+      message.error('File must be smaller than 5MB!');
+      return false;
+    }
+
+    handleUpload(fileObj);
     return false; // Prevent default upload
   };
 
-  const isImageFile =
+  const isImageUrl =
     fileUrl &&
     (fileUrl.includes('.jpg') ||
       fileUrl.includes('.jpeg') ||
@@ -137,7 +134,7 @@ export const FileUpload = ({
     <div className="file-upload-container">
       {showPreview && fileUrl && (
         <div style={{ marginBottom: 16, position: 'relative' }}>
-          {isImageFile ? (
+          {isImageUrl ? (
             <Image
               src={fileUrl}
               alt={fileName || `${fileType} file`}

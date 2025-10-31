@@ -49,8 +49,13 @@ export async function POST(
       );
     }
 
+    // Create organized filename
+    const timestamp = Date.now();
+    const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+    const blobFileName = `tenant-${tenantId}/files/${fileType}/${timestamp}-${sanitizedName}`;
+
     // Upload to Vercel Blob
-    const blob = await FileService.uploadFile(file, tenantId, fileType);
+    const blob = await FileService.uploadFile(file, blobFileName);
 
     // Save reference to database
     const fileRecord = await FileRepository.saveFileReference(

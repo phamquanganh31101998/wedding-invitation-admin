@@ -53,6 +53,14 @@ export function getFileCategory(file: File): string {
 }
 
 /**
+ * Validate file size (max 50MB)
+ */
+export function validateFileSize(file: File, maxSizeInMB: number = 5): boolean {
+  const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
+  return file.size <= maxSizeInBytes;
+}
+
+/**
  * Validate file type for upload
  */
 export function validateFileType(file: File): boolean {
