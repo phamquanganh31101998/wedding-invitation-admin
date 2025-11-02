@@ -95,7 +95,6 @@ export class SecureTenantRepository {
       const result = await sql`
         SELECT * FROM tenants 
         WHERE id = ${id}
-        AND is_active = true
       `;
       return (result[0] as Tenant) || null;
     } catch (error: any) {

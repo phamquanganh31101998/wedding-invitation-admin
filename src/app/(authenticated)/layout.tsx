@@ -3,7 +3,15 @@
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
-import { Layout, Menu, Typography, Button, Space, Avatar, Dropdown } from 'antd';
+import {
+  Layout,
+  Menu,
+  Typography,
+  Button,
+  Space,
+  Avatar,
+  Dropdown,
+} from 'antd';
 import {
   LogoutOutlined,
   TeamOutlined,
@@ -11,6 +19,7 @@ import {
   BarChartOutlined,
   DashboardOutlined,
   UserOutlined,
+  MessageOutlined,
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 
@@ -21,7 +30,9 @@ interface AuthenticatedLayoutProps {
   children: React.ReactNode;
 }
 
-export default function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
+export default function AuthenticatedLayout({
+  children,
+}: AuthenticatedLayoutProps) {
   const { data: session, status } = useSession();
   const router = useRouter();
   const pathname = usePathname();
@@ -51,6 +62,12 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
       icon: <TeamOutlined />,
       label: 'Tenant Management',
       onClick: () => router.push('/tenants'),
+    },
+    {
+      key: '/ai-chat',
+      icon: <MessageOutlined />,
+      label: 'AI Chat',
+      onClick: () => router.push('/ai-chat'),
     },
     {
       key: 'rsvp',
@@ -91,6 +108,7 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
   const getSelectedKey = () => {
     if (pathname === '/dashboard') return '/dashboard';
     if (pathname.startsWith('/tenants')) return '/tenants';
+    if (pathname.startsWith('/ai-chat')) return '/ai-chat';
     return pathname;
   };
 
@@ -124,7 +142,10 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
         <Space>
           <span>Welcome, {session.user?.name}</span>
           <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-            <Button type="text" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Button
+              type="text"
+              style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+            >
               <Avatar size="small" icon={<UserOutlined />} />
             </Button>
           </Dropdown>
@@ -154,9 +175,7 @@ export default function AuthenticatedLayout({ children }: AuthenticatedLayoutPro
         </Sider>
 
         <Layout style={{ background: '#f0f2f5' }}>
-          <Content style={{ margin: 0, minHeight: 280 }}>
-            {children}
-          </Content>
+          <Content style={{ margin: 0, minHeight: 280 }}>{children}</Content>
         </Layout>
       </Layout>
     </Layout>
