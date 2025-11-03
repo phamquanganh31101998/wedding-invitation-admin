@@ -1,26 +1,23 @@
-import {
-  WeddingContextData,
-  WeddingContextService,
-} from './wedding-context.service';
+import { WeddingContextService } from './wedding-context.service';
 
 export class AIPromptService {
   private weddingContextService = new WeddingContextService();
 
   /**
-   * Generate enhanced system prompt with wedding context
+   * Generate system prompt with minimal tenant context
    */
   async generateSystemPrompt(tenantId?: number): Promise<string> {
-    const weddingContext = await this.weddingContextService.getWeddingContext();
-    const tenantContext = tenantId
-      ? await this.weddingContextService.getTenantContext(tenantId)
+    // Load only basic tenant info if tenantId is provided
+    const tenantInfo = tenantId
+      ? await this.weddingContextService.getBasicTenantInfo(tenantId)
       : null;
 
-    return this.buildSystemPrompt(weddingContext, tenantContext);
+    return this.buildTenantSpecificPrompt(tenantInfo, tenantId);
   }
 
-  private buildSystemPrompt(
-    weddingContext: WeddingContextData,
-    tenantContext: any = null
+  private buildTenantSpecificPrompt(
+    tenantContext: any = null,
+    tenantId?: number
   ): string {
     const basePrompt = `You are a Wedding Admin Assistant for a multi-tenant wedding invitation management system. You help administrators manage weddings, RSVPs, and provide insights about the wedding business.
 
@@ -29,47 +26,11 @@ SYSTEM OVERVIEW:
 - Each tenant represents a unique wedding (bride & groom pair)
 - Guests can RSVP with status: yes (confirmed), no (declined), maybe (pending)
 - Venues and themes are customizable per wedding
-- System tracks guest relationships and manages invitations
-
-CURRENT SYSTEM STATUS:`;
-
-    const systemStats = `
-📊 SYSTEM STATISTICS:
-- Total Weddings: ${weddingContext.totalTenants}
-- Active Weddings: ${weddingContext.activeTenants}
-- Total Guests: ${weddingContext.rsvpSummary.totalGuests}
-- Confirmed RSVPs: ${weddingContext.rsvpSummary.confirmed}
-- Declined RSVPs: ${weddingContext.rsvpSummary.declined}
-- Pending RSVPs: ${weddingContext.rsvpSummary.pending}`;
-
-    const upcomingWeddings =
-      weddingContext.upcomingWeddings.length > 0
-        ? `
-📅 UPCOMING WEDDINGS (Next 30 Days):
-${weddingContext.upcomingWeddings
-  .map(
-    (w) =>
-      `- ${w.brideName} & ${w.groomName} at ${w.venueName} (${w.daysUntilWedding} days)`
-  )
-  .join('\n')}`
-        : '\n📅 No upcoming weddings in the next 30 days.';
-
-    const recentActivity =
-      weddingContext.recentRsvps.length > 0
-        ? `
-🔔 RECENT RSVP ACTIVITY (Last 7 Days):
-${weddingContext.recentRsvps
-  .slice(0, 5)
-  .map(
-    (r) => `- ${r.guestName} (${r.tenantNames}): ${r.attendance.toUpperCase()}`
-  )
-  .join('\n')}`
-        : '\n🔔 No recent RSVP activity.';
+- System tracks guest relationships and manages invitations`;
 
     let tenantSpecificContext = '';
     if (tenantContext) {
       const wedding = tenantContext.wedding;
-      const rsvps = tenantContext.rsvps;
 
       tenantSpecificContext = `
 
@@ -80,7 +41,21 @@ ${weddingContext.recentRsvps
 - Address: ${wedding.venueAddress}
 - Theme Colors: ${wedding.themePrimaryColor} / ${wedding.themeSecondaryColor}
 - Contact: ${wedding.email || 'N/A'} | ${wedding.phone || 'N/A'}
-- RSVPs: ${rsvps.confirmed} confirmed, ${rsvps.declined} declined, ${rsvps.pending} pending (${rsvps.totalGuests} total)`;
+- Use available functions to get RSVP data and guest information for this wedding`;
+    } else if (tenantId) {
+      tenantSpecificContext = `
+
+🎊 WEDDING CONTEXT:
+- You are working with a specific wedding (ID: ${tenantId})
+- Use the available functions to get detailed information about this wedding
+- All actions will be performed in the context of this wedding`;
+    } else {
+      tenantSpecificContext = `
+
+📊 GENERAL SYSTEM MODE:
+- You have access to system-wide operations
+- Use available functions to get current statistics and data
+- You can work with any wedding in the system`;
     }
 
     const capabilities = `
@@ -102,26 +77,19 @@ You can perform these administrative actions:
 - Search guests by name or relationship
 - Update guest RSVP status (yes/no/maybe)
 - Add new guests to weddings
-- Export guest lists in various formats
+- Get detailed wedding information by ID or slug
+- Search for weddings by couple names or venue
 
 RESPONSE GUIDELINES:
 - Be helpful, professional, and wedding-focused
 - Use available functions to provide real-time data when requested
 - Provide actionable advice when possible
-- Use the system data to give contextual insights
 - Keep responses concise but informative
 - When performing actions, explain what you're doing
 - Always maintain a positive, supportive tone for wedding planning
 - If you need to perform an action, use the appropriate function rather than suggesting manual steps`;
 
-    return (
-      basePrompt +
-      systemStats +
-      upcomingWeddings +
-      recentActivity +
-      tenantSpecificContext +
-      capabilities
-    );
+    return basePrompt + tenantSpecificContext + capabilities;
   }
 
   /**

@@ -100,18 +100,108 @@ async function addGuest(params: {
 }
 
 /**
- * Export guest list for a wedding
+ * Get tenant information by ID
  */
-async function exportGuestList(params: {
-  tenantId: number;
-  format?: 'summary' | 'detailed';
-}) {
-  const { tenantId, format = 'summary' } = params;
+async function getTenantInfo(params: { tenantId: number }) {
+  const { tenantId } = params;
 
   const securityContext = await getSecurityContext();
-  const guestRepository = new SecureGuestRepository(securityContext);
+  const tenantRepository = new SecureTenantRepository(securityContext);
 
-  return await guestRepository.exportGuestList({ tenantId, format });
+  const tenant = await tenantRepository.findById(tenantId);
+
+  if (!tenant) {
+    throw new Error('Wedding not found.');
+  }
+
+  return {
+    id: tenant.id,
+    slug: tenant.slug,
+    brideName: tenant.bride_name,
+    groomName: tenant.groom_name,
+    weddingDate: tenant.wedding_date,
+    venueName: tenant.venue_name,
+    venueAddress: tenant.venue_address,
+    venueMapLink: tenant.venue_map_link,
+    themePrimaryColor: tenant.theme_primary_color,
+    themeSecondaryColor: tenant.theme_secondary_color,
+    email: tenant.email,
+    phone: tenant.phone,
+    isActive: tenant.is_active,
+    createdAt: tenant.created_at,
+    updatedAt: tenant.updated_at,
+  };
+}
+
+/**
+ * Get tenant information by slug
+ */
+async function getTenantBySlug(params: { slug: string }) {
+  const { slug } = params;
+
+  const securityContext = await getSecurityContext();
+  const tenantRepository = new SecureTenantRepository(securityContext);
+
+  const tenant = await tenantRepository.findBySlug(slug);
+
+  if (!tenant) {
+    throw new Error('Wedding not found with the provided slug.');
+  }
+
+  return {
+    id: tenant.id,
+    slug: tenant.slug,
+    brideName: tenant.bride_name,
+    groomName: tenant.groom_name,
+    weddingDate: tenant.wedding_date,
+    venueName: tenant.venue_name,
+    venueAddress: tenant.venue_address,
+    venueMapLink: tenant.venue_map_link,
+    themePrimaryColor: tenant.theme_primary_color,
+    themeSecondaryColor: tenant.theme_secondary_color,
+    email: tenant.email,
+    phone: tenant.phone,
+    isActive: tenant.is_active,
+    createdAt: tenant.created_at,
+    updatedAt: tenant.updated_at,
+  };
+}
+
+/**
+ * Search tenants by name or venue
+ */
+async function searchTenants(params: {
+  query: string;
+  limit?: number;
+  isActive?: boolean;
+}) {
+  const { query, limit = 10, isActive = true } = params;
+
+  const securityContext = await getSecurityContext();
+  const tenantRepository = new SecureTenantRepository(securityContext);
+
+  const result = await tenantRepository.findMany(
+    {
+      search: query,
+      is_active: isActive,
+    },
+    { page: 1, limit }
+  );
+
+  return {
+    tenants: result.tenants.map((tenant) => ({
+      id: tenant.id,
+      slug: tenant.slug,
+      brideName: tenant.bride_name,
+      groomName: tenant.groom_name,
+      weddingDate: tenant.wedding_date,
+      venueName: tenant.venue_name,
+      isActive: tenant.is_active,
+    })),
+    total: result.total,
+    page: result.page,
+    limit: result.limit,
+  };
 }
 
 // Define all available agent functions
@@ -214,24 +304,58 @@ export const agentFunctions: AgentFunction[] = [
     handler: addGuest,
   },
   {
-    name: 'exportGuestList',
-    description:
-      'Export guest list for a wedding in summary or detailed format',
+    name: 'getTenantInfo',
+    description: 'Get detailed information about a specific wedding by ID',
     parameters: {
       type: 'object',
       properties: {
         tenantId: {
           type: 'number',
-          description: 'The wedding ID to export guest list for',
-        },
-        format: {
-          type: 'string',
-          enum: ['summary', 'detailed'],
-          description: 'Export format (default: summary)',
+          description: 'The wedding ID to get information for',
         },
       },
       required: ['tenantId'],
     },
-    handler: exportGuestList,
+    handler: getTenantInfo,
+  },
+  {
+    name: 'getTenantBySlug',
+    description: 'Get wedding information by slug (URL-friendly identifier)',
+    parameters: {
+      type: 'object',
+      properties: {
+        slug: {
+          type: 'string',
+          description: 'The wedding slug to search for',
+        },
+      },
+      required: ['slug'],
+    },
+    handler: getTenantBySlug,
+  },
+  {
+    name: 'searchTenants',
+    description:
+      'Search for weddings by couple names, venue, or other criteria',
+    parameters: {
+      type: 'object',
+      properties: {
+        query: {
+          type: 'string',
+          description:
+            'Search term for couple names, venue, or other wedding details',
+        },
+        limit: {
+          type: 'number',
+          description: 'Maximum number of results to return (default: 10)',
+        },
+        isActive: {
+          type: 'boolean',
+          description: 'Filter by active status (default: true)',
+        },
+      },
+      required: ['query'],
+    },
+    handler: searchTenants,
   },
 ];

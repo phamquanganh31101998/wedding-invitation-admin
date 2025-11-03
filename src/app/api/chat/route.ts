@@ -4,11 +4,17 @@ import OpenAI from 'openai';
 import { AIPromptService } from '@/features/ai-chat/agents/ai-prompt.service';
 import { agentFunctions } from '@/features/ai-chat/agents/agent-functions';
 
-// Prepare function definitions for OpenAI
-const functions = agentFunctions.map((func) => ({
-  name: func.name,
-  description: func.description,
-  parameters: func.parameters,
+// AI Model configuration
+const AI_MODEL = 'gpt-3.5-turbo';
+
+// Prepare function definitions for OpenAI (using new tools format)
+const tools = agentFunctions.map((func) => ({
+  type: 'function' as const,
+  function: {
+    name: func.name,
+    description: func.description,
+    parameters: func.parameters,
+  },
 }));
 
 export async function POST(request: NextRequest) {
@@ -45,7 +51,7 @@ export async function POST(request: NextRequest) {
     const systemPrompt = await aiPromptService.generateSystemPrompt(tenantId);
 
     const completion = await openai.chat.completions.create({
-      model: 'gpt-5-nano',
+      model: AI_MODEL,
       messages: [
         {
           role: 'system',
@@ -53,18 +59,26 @@ export async function POST(request: NextRequest) {
         },
         ...messages,
       ],
-      functions: functions,
-      function_call: 'auto', // Let AI decide when to call functions
+      tools: tools,
+      tool_choice: 'auto', // Let AI decide when to call functions
     });
 
     const assistantMessage = completion.choices[0]?.message;
 
-    // Check if AI wants to call a function
-    if (assistantMessage?.function_call) {
-      const functionName = assistantMessage.function_call.name;
-      const functionArgs = JSON.parse(
-        assistantMessage.function_call.arguments || '{}'
-      );
+    // Check if AI wants to call a tool/function
+    if (
+      assistantMessage?.tool_calls &&
+      assistantMessage.tool_calls.length > 0
+    ) {
+      const toolCall = assistantMessage.tool_calls[0];
+
+      // Ensure it's a function tool call
+      if (toolCall.type !== 'function') {
+        throw new Error('Unsupported tool call type');
+      }
+
+      const functionName = toolCall.function.name;
+      const functionArgs = JSON.parse(toolCall.function.arguments || '{}');
 
       try {
         // Find and execute the function
@@ -80,7 +94,7 @@ export async function POST(request: NextRequest) {
 
         // Send function result back to AI for final response
         const followUpCompletion = await openai.chat.completions.create({
-          model: 'gpt-5-nano',
+          model: AI_MODEL,
           messages: [
             {
               role: 'system',
@@ -89,12 +103,12 @@ export async function POST(request: NextRequest) {
             ...messages,
             {
               role: 'assistant',
-              content: null,
-              function_call: assistantMessage.function_call,
+              content: assistantMessage.content,
+              tool_calls: assistantMessage.tool_calls,
             },
             {
-              role: 'function',
-              name: functionName,
+              role: 'tool',
+              tool_call_id: toolCall.id,
               content: JSON.stringify(functionResult),
             },
           ],
@@ -119,7 +133,7 @@ export async function POST(request: NextRequest) {
 
         // Send error back to AI to handle gracefully
         const errorCompletion = await openai.chat.completions.create({
-          model: 'gpt-5-nano',
+          model: AI_MODEL,
           messages: [
             {
               role: 'system',
@@ -128,12 +142,12 @@ export async function POST(request: NextRequest) {
             ...messages,
             {
               role: 'assistant',
-              content: null,
-              function_call: assistantMessage.function_call,
+              content: assistantMessage.content,
+              tool_calls: assistantMessage.tool_calls,
             },
             {
-              role: 'function',
-              name: functionName,
+              role: 'tool',
+              tool_call_id: toolCall.id,
               content: JSON.stringify({
                 error:
                   functionError instanceof Error
