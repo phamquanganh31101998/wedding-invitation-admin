@@ -53,7 +53,7 @@ export default function ChatWindow({ messages, isLoading }: ChatWindowProps) {
           {isLoading && (
             <div style={{ textAlign: 'center', padding: '16px' }}>
               <Spin size="small" />
-              <span style={{ marginLeft: 8 }}>AI is typing...</span>
+              <span style={{ marginLeft: 8 }}>AI is thinking...</span>
             </div>
           )}
           <div ref={messagesEndRef} />

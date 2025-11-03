@@ -3,6 +3,8 @@ export interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
+  functionCalled?: string;
+  functionResult?: any;
 }
 
 export interface ChatSession {
@@ -17,8 +19,12 @@ export interface SendMessageParams {
     role: 'user' | 'assistant';
     content: string;
   }>;
+  tenantId?: number;
 }
 
 export interface SendMessageResponse {
   message: string;
+  functionCalled?: string;
+  functionResult?: any;
+  functionError?: boolean;
 }

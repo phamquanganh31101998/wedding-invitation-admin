@@ -1,8 +1,6 @@
-import { Avatar, Typography } from 'antd';
-import { UserOutlined, RobotOutlined } from '@ant-design/icons';
+import { Avatar, Tag } from 'antd';
+import { UserOutlined, RobotOutlined, FunctionOutlined } from '@ant-design/icons';
 import { ChatMessage as ChatMessageType } from '../services/chat.types';
-
-const { Text } = Typography;
 
 interface ChatMessageProps {
   message: ChatMessageType;
@@ -37,9 +35,22 @@ export default function ChatMessage({ message }: ChatMessageProps) {
           color: isUser ? 'white' : 'black',
         }}
       >
-        <Text style={{ color: isUser ? 'white' : 'inherit' }}>
+        <div style={{ color: isUser ? 'white' : 'inherit', whiteSpace: 'pre-wrap' }}>
           {message.content}
-        </Text>
+        </div>
+
+        {/* Show function call indicator for assistant messages */}
+        {!isUser && message.functionCalled && (
+          <div style={{ marginTop: '8px' }}>
+            <Tag
+              icon={<FunctionOutlined />}
+              color="blue"
+            >
+              Executed: {message.functionCalled}
+            </Tag>
+          </div>
+        )}
+
         <div
           style={{
             fontSize: '11px',

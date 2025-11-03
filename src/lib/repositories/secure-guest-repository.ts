@@ -453,4 +453,483 @@ export class SecureGuestRepository {
       throw new Error(`${TenantErrorCode.DATABASE_ERROR}: ${error.message}`);
     }
   }
+
+  /**
+   * Get detailed RSVP summary for a tenant with family/friend breakdown
+   */
+  async getRsvpSummary(tenantId: number): Promise<{
+    summary: {
+      totalGuests: number;
+      confirmed: number;
+      declined: number;
+      pending: number;
+      familyGuests: number;
+      friendGuests: number;
+    };
+    recentActivity: Array<{
+      name: string;
+      attendance: string;
+      relationship: string;
+      submittedAt: string;
+    }>;
+  }> {
+    // Validate access permissions
+    const accessValidation = validateTenantAccess(this.securityContext, 'read');
+    if (!accessValidation.isValid) {
+      throw new Error(
+        `${accessValidation.error!.code}: ${accessValidation.error!.message}`
+      );
+    }
+
+    // Validate tenant ID
+    const tenantIdValidation = validateTenantId(tenantId);
+    if (!tenantIdValidation.isValid) {
+      throw new Error(
+        `${tenantIdValidation.error!.code}: ${tenantIdValidation.error!.message}`
+      );
+    }
+
+    try {
+      // Get summary statistics
+      const summaryResult = await sql`
+        SELECT 
+          COUNT(*) as total_guests,
+          COUNT(*) FILTER (WHERE attendance = 'yes') as confirmed,
+          COUNT(*) FILTER (WHERE attendance = 'no') as declined,
+          COUNT(*) FILTER (WHERE attendance = 'maybe') as pending,
+          COUNT(*) FILTER (WHERE relationship ILIKE '%family%' OR relationship ILIKE '%Family%') as family_guests,
+          COUNT(*) FILTER (WHERE relationship ILIKE '%friend%' OR relationship ILIKE '%Friend%') as friend_guests
+        FROM guests 
+        WHERE tenant_id = ${tenantId}
+      `;
+
+      // Get recent activity
+      const recentActivity = await sql`
+        SELECT name, attendance, created_at, relationship
+        FROM guests 
+        WHERE tenant_id = ${tenantId}
+        ORDER BY created_at DESC
+        LIMIT 5
+      `;
+
+      const summary = summaryResult[0];
+      return {
+        summary: {
+          totalGuests: parseInt(summary.total_guests),
+          confirmed: parseInt(summary.confirmed),
+          declined: parseInt(summary.declined),
+          pending: parseInt(summary.pending),
+          familyGuests: parseInt(summary.family_guests),
+          friendGuests: parseInt(summary.friend_guests),
+        },
+        recentActivity: recentActivity.map((guest: any) => ({
+          name: guest.name,
+          attendance: guest.attendance,
+          relationship: guest.relationship,
+          submittedAt: guest.created_at,
+        })),
+      };
+    } catch (error: any) {
+      throw new Error(`${TenantErrorCode.DATABASE_ERROR}: ${error.message}`);
+    }
+  }
+
+  /**
+   * Search guests by name or relationship with optional tenant filtering
+   */
+  async searchGuests(params: {
+    query: string;
+    tenantId?: number;
+    limit?: number;
+  }): Promise<
+    Array<{
+      id: number;
+      name: string;
+      relationship: string;
+      attendance: string;
+      message?: string;
+      wedding: string;
+      weddingDate: string;
+      submittedAt: string;
+    }>
+  > {
+    // Validate access permissions
+    const accessValidation = validateTenantAccess(this.securityContext, 'read');
+    if (!accessValidation.isValid) {
+      throw new Error(
+        `${accessValidation.error!.code}: ${accessValidation.error!.message}`
+      );
+    }
+
+    const { query, tenantId, limit = 10 } = params;
+
+    try {
+      let searchQuery;
+      if (tenantId) {
+        // Validate tenant ID if provided
+        const tenantIdValidation = validateTenantId(tenantId);
+        if (!tenantIdValidation.isValid) {
+          throw new Error(
+            `${tenantIdValidation.error!.code}: ${tenantIdValidation.error!.message}`
+          );
+        }
+
+        searchQuery = sql`
+          SELECT g.*, t.bride_name, t.groom_name, t.wedding_date
+          FROM guests g
+          JOIN tenants t ON g.tenant_id = t.id
+          WHERE g.tenant_id = ${tenantId}
+            AND (g.name ILIKE ${`%${query}%`} OR g.relationship ILIKE ${`%${query}%`})
+          ORDER BY g.created_at DESC
+          LIMIT ${limit}
+        `;
+      } else {
+        searchQuery = sql`
+          SELECT g.*, t.bride_name, t.groom_name, t.wedding_date
+          FROM guests g
+          JOIN tenants t ON g.tenant_id = t.id
+          WHERE g.name ILIKE ${`%${query}%`} OR g.relationship ILIKE ${`%${query}%`}
+          ORDER BY g.created_at DESC
+          LIMIT ${limit}
+        `;
+      }
+
+      const results = await searchQuery;
+
+      return results.map((guest: any) => ({
+        id: guest.id,
+        name: guest.name,
+        relationship: guest.relationship,
+        attendance: guest.attendance,
+        message: guest.message,
+        wedding: `${guest.bride_name} & ${guest.groom_name}`,
+        weddingDate: guest.wedding_date,
+        submittedAt: guest.created_at,
+      }));
+    } catch (error: any) {
+      throw new Error(`${TenantErrorCode.DATABASE_ERROR}: ${error.message}`);
+    }
+  }
+
+  /**
+   * Update guest RSVP status with tenant isolation
+   */
+  async updateGuestStatus(params: {
+    guestId: number;
+    status: 'yes' | 'no' | 'maybe';
+    tenantId?: number;
+  }): Promise<{
+    success: boolean;
+    guest: {
+      id: number;
+      name: string;
+      attendance: string;
+      updatedAt: string;
+    };
+  }> {
+    // Validate access permissions
+    const accessValidation = validateTenantAccess(
+      this.securityContext,
+      'write'
+    );
+    if (!accessValidation.isValid) {
+      throw new Error(
+        `${accessValidation.error!.code}: ${accessValidation.error!.message}`
+      );
+    }
+
+    const { guestId, status, tenantId } = params;
+
+    // Validate status
+    if (!['yes', 'no', 'maybe'].includes(status)) {
+      throw new Error(
+        `${TenantErrorCode.VALIDATION_ERROR}: Invalid status. Must be yes, no, or maybe.`
+      );
+    }
+
+    try {
+      let updateQuery;
+      if (tenantId) {
+        // Validate tenant ID
+        const tenantIdValidation = validateTenantId(tenantId);
+        if (!tenantIdValidation.isValid) {
+          throw new Error(
+            `${tenantIdValidation.error!.code}: ${tenantIdValidation.error!.message}`
+          );
+        }
+
+        updateQuery = sql`
+          UPDATE guests 
+          SET attendance = ${status}, updated_at = CURRENT_TIMESTAMP
+          WHERE id = ${guestId} AND tenant_id = ${tenantId}
+          RETURNING *
+        `;
+      } else {
+        updateQuery = sql`
+          UPDATE guests 
+          SET attendance = ${status}, updated_at = CURRENT_TIMESTAMP
+          WHERE id = ${guestId}
+          RETURNING *
+        `;
+      }
+
+      const result = await updateQuery;
+
+      if (result.length === 0) {
+        throw new Error(
+          `${TenantErrorCode.TENANT_NOT_FOUND}: Guest not found or access denied.`
+        );
+      }
+
+      return {
+        success: true,
+        guest: {
+          id: result[0].id,
+          name: result[0].name,
+          attendance: result[0].attendance,
+          updatedAt: result[0].updated_at,
+        },
+      };
+    } catch (error: any) {
+      if (
+        error.message.includes(TenantErrorCode.TENANT_NOT_FOUND) ||
+        error.message.includes(TenantErrorCode.VALIDATION_ERROR)
+      ) {
+        throw error;
+      }
+      throw new Error(`${TenantErrorCode.DATABASE_ERROR}: ${error.message}`);
+    }
+  }
+
+  /**
+   * Export guest list for a wedding
+   */
+  async exportGuestList(params: {
+    tenantId: number;
+    format?: 'summary' | 'detailed';
+  }): Promise<{
+    wedding: {
+      couple: string;
+      date: string;
+      venue: string;
+    };
+    summary: {
+      confirmed: number;
+      declined: number;
+      pending: number;
+    };
+    guests: Array<{
+      name: string;
+      relationship: string;
+      status: string;
+      message?: string;
+      rsvpDate?: string;
+    }>;
+    exportedAt: string;
+  }> {
+    // Validate access permissions
+    const accessValidation = validateTenantAccess(this.securityContext, 'read');
+    if (!accessValidation.isValid) {
+      throw new Error(
+        `${accessValidation.error!.code}: ${accessValidation.error!.message}`
+      );
+    }
+
+    const { tenantId, format = 'summary' } = params;
+
+    // Validate tenant ID
+    const tenantIdValidation = validateTenantId(tenantId);
+    if (!tenantIdValidation.isValid) {
+      throw new Error(
+        `${tenantIdValidation.error!.code}: ${tenantIdValidation.error!.message}`
+      );
+    }
+
+    try {
+      // Get wedding info
+      const wedding = await sql`
+        SELECT bride_name, groom_name, wedding_date, venue_name
+        FROM tenants 
+        WHERE id = ${tenantId} AND is_active = true
+      `;
+
+      if (wedding.length === 0) {
+        throw new Error(
+          `${TenantErrorCode.TENANT_NOT_FOUND}: Wedding not found.`
+        );
+      }
+
+      // Get guests
+      const guests = await sql`
+        SELECT name, relationship, attendance, message, created_at
+        FROM guests 
+        WHERE tenant_id = ${tenantId}
+        ORDER BY attendance DESC, name ASC
+      `;
+
+      const weddingInfo = wedding[0];
+      const guestList = guests.map((guest: any) => ({
+        name: guest.name,
+        relationship: guest.relationship,
+        status: guest.attendance,
+        message: format === 'detailed' ? guest.message : undefined,
+        rsvpDate: format === 'detailed' ? guest.created_at : undefined,
+      }));
+
+      const summary = {
+        confirmed: guests.filter((g: any) => g.attendance === 'yes').length,
+        declined: guests.filter((g: any) => g.attendance === 'no').length,
+        pending: guests.filter((g: any) => g.attendance === 'maybe').length,
+      };
+
+      return {
+        wedding: {
+          couple: `${weddingInfo.bride_name} & ${weddingInfo.groom_name}`,
+          date: weddingInfo.wedding_date,
+          venue: weddingInfo.venue_name,
+        },
+        summary,
+        guests: guestList,
+        exportedAt: new Date().toISOString(),
+      };
+    } catch (error: any) {
+      if (error.message.includes(TenantErrorCode.TENANT_NOT_FOUND)) {
+        throw error;
+      }
+      throw new Error(`${TenantErrorCode.DATABASE_ERROR}: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get recent RSVP activity (last 7 days)
+   */
+  async getRecentRsvps(): Promise<
+    Array<{
+      guestName: string;
+      tenantNames: string;
+      attendance: string;
+      submittedAt: string;
+    }>
+  > {
+    // Validate access permissions
+    const accessValidation = validateTenantAccess(this.securityContext, 'read');
+    if (!accessValidation.isValid) {
+      throw new Error(
+        `${accessValidation.error!.code}: ${accessValidation.error!.message}`
+      );
+    }
+
+    try {
+      const result = await sql`
+        SELECT 
+          g.name as guest_name,
+          CONCAT(t.bride_name, ' & ', t.groom_name) as tenant_names,
+          g.attendance,
+          g.created_at as submitted_at
+        FROM guests g
+        JOIN tenants t ON g.tenant_id = t.id
+        WHERE g.created_at >= CURRENT_DATE - INTERVAL '7 days'
+        ORDER BY g.created_at DESC
+        LIMIT 10
+      `;
+
+      return result.map((row: any) => ({
+        guestName: row.guest_name,
+        tenantNames: row.tenant_names,
+        attendance: row.attendance,
+        submittedAt: row.submitted_at,
+      }));
+    } catch (error: any) {
+      throw new Error(`${TenantErrorCode.DATABASE_ERROR}: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get overall RSVP summary across all active tenants
+   */
+  async getOverallRsvpSummary(): Promise<{
+    totalGuests: number;
+    confirmed: number;
+    declined: number;
+    pending: number;
+  }> {
+    // Validate access permissions
+    const accessValidation = validateTenantAccess(this.securityContext, 'read');
+    if (!accessValidation.isValid) {
+      throw new Error(
+        `${accessValidation.error!.code}: ${accessValidation.error!.message}`
+      );
+    }
+
+    try {
+      const result = await sql`
+        SELECT 
+          COUNT(*) as total_guests,
+          COUNT(*) FILTER (WHERE attendance = 'yes') as confirmed,
+          COUNT(*) FILTER (WHERE attendance = 'no') as declined,
+          COUNT(*) FILTER (WHERE attendance = 'maybe') as pending
+        FROM guests g
+        JOIN tenants t ON g.tenant_id = t.id
+        WHERE t.is_active = true
+      `;
+
+      const row = result[0];
+      return {
+        totalGuests: parseInt(row.total_guests),
+        confirmed: parseInt(row.confirmed),
+        declined: parseInt(row.declined),
+        pending: parseInt(row.pending),
+      };
+    } catch (error: any) {
+      throw new Error(`${TenantErrorCode.DATABASE_ERROR}: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get tenant-specific RSVP summary
+   */
+  async getTenantRsvpSummary(tenantId: number): Promise<{
+    totalGuests: number;
+    confirmed: number;
+    declined: number;
+    pending: number;
+  }> {
+    // Validate access permissions
+    const accessValidation = validateTenantAccess(this.securityContext, 'read');
+    if (!accessValidation.isValid) {
+      throw new Error(
+        `${accessValidation.error!.code}: ${accessValidation.error!.message}`
+      );
+    }
+
+    // Validate tenant ID
+    const tenantIdValidation = validateTenantId(tenantId);
+    if (!tenantIdValidation.isValid) {
+      throw new Error(
+        `${tenantIdValidation.error!.code}: ${tenantIdValidation.error!.message}`
+      );
+    }
+
+    try {
+      const result = await sql`
+        SELECT 
+          COUNT(*) as total_guests,
+          COUNT(*) FILTER (WHERE attendance = 'yes') as confirmed,
+          COUNT(*) FILTER (WHERE attendance = 'no') as declined,
+          COUNT(*) FILTER (WHERE attendance = 'maybe') as pending
+        FROM guests 
+        WHERE tenant_id = ${tenantId}
+      `;
+
+      const row = result[0];
+      return {
+        totalGuests: parseInt(row.total_guests),
+        confirmed: parseInt(row.confirmed),
+        declined: parseInt(row.declined),
+        pending: parseInt(row.pending),
+      };
+    } catch (error: any) {
+      throw new Error(`${TenantErrorCode.DATABASE_ERROR}: ${error.message}`);
+    }
+  }
 }

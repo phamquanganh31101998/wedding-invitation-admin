@@ -1,15 +1,35 @@
 'use client';
 
-import { Card, Typography, Button, Space, Divider } from 'antd';
-import { DeleteOutlined, MessageOutlined } from '@ant-design/icons';
+import { useState } from 'react';
+import { Card, Typography, Button, Space, Divider, Select, Alert } from 'antd';
+import { DeleteOutlined, MessageOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { useChat } from './useChat';
 import ChatWindow from './components/ChatWindow';
 import ChatInput from './components/ChatInput';
+// import WeddingContextDemo from './components/WeddingContextDemo';
+import FunctionCallIndicator from './components/FunctionCallIndicator';
+import { useGetTenantList } from '@/features/tenants/services/tenant.hooks';
+import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
+const { Option } = Select;
 
 export default function AiChatManagement() {
-  const { messages, isLoading, sendMessage, clearChat } = useChat();
+  const [selectedTenantId, setSelectedTenantId] = useState<number | undefined>();
+
+  const { messages, isLoading, sendMessage, clearChat } = useChat(selectedTenantId);
+
+  // Use tenant hooks to get tenant list
+  const { tenantList: tenants, isLoading: loadingTenants } = useGetTenantList({
+    limit: 50,
+  });
+
+  const handleTenantChange = (tenantId: number | undefined) => {
+    setSelectedTenantId(tenantId);
+    clearChat(); // Clear chat when switching context
+  };
+
+  const selectedTenant = tenants.find(t => t.id === selectedTenantId);
 
   return (
     <div style={{ padding: '24px' }}>
@@ -17,14 +37,50 @@ export default function AiChatManagement() {
         <Space align="center" style={{ marginBottom: '16px' }}>
           <MessageOutlined style={{ fontSize: '24px', color: '#1890ff' }} />
           <Title level={2} style={{ margin: 0 }}>
-            AI Chat Assistant
+            AI Wedding Assistant
           </Title>
         </Space>
-        <Text type="secondary">
-          Chat with our AI assistant for help with wedding planning, general
-          questions, or just friendly conversation.
-        </Text>
       </div>
+
+      {/* Wedding Context Selector */}
+      <Card style={{ marginBottom: '24px' }}>
+        <Space direction="vertical" style={{ width: '100%' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <Text strong>Wedding Context:</Text>
+            <Select
+              style={{ minWidth: '300px' }}
+              placeholder="Select a wedding for focused assistance"
+              allowClear
+              loading={loadingTenants}
+              value={selectedTenantId}
+              onChange={handleTenantChange}
+            >
+              {tenants.map(tenant => (
+                <Option key={tenant.id} value={tenant.id}>
+                  {tenant.brideName} & {tenant.groomName} - {tenant.venueName}
+                </Option>
+              ))}
+            </Select>
+          </div>
+
+          {selectedTenant && (
+            <Alert
+              message={`Focused on: ${selectedTenant.brideName} & ${selectedTenant.groomName}`}
+              type="info"
+              icon={<InfoCircleOutlined />}
+              showIcon
+            />
+          )}
+
+          {!selectedTenantId && (
+            <Alert
+              message="General Wedding System Mode"
+              type="success"
+              showIcon
+            />
+          )}
+        </Space>
+      </Card>
 
       <Card>
         <div
@@ -49,6 +105,11 @@ export default function AiChatManagement() {
             </Button>
           )}
         </div>
+
+        <FunctionCallIndicator
+          isLoading={isLoading}
+          functionName={messages[messages.length - 1]?.functionCalled}
+        />
 
         <ChatWindow messages={messages} isLoading={isLoading} />
 

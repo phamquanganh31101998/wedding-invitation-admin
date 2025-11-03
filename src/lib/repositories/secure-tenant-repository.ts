@@ -422,4 +422,165 @@ export class SecureTenantRepository {
       return false;
     }
   }
+
+  /**
+   * Get tenant statistics (total and active count)
+   */
+  async getTenantStatistics(): Promise<{
+    total: number;
+    active: number;
+  }> {
+    // Validate access permissions
+    const accessValidation = validateTenantAccess(this.securityContext, 'read');
+    if (!accessValidation.isValid) {
+      throw new Error(
+        `${accessValidation.error!.code}: ${accessValidation.error!.message}`
+      );
+    }
+
+    try {
+      const result = await sql`
+        SELECT 
+          COUNT(*) as total,
+          COUNT(*) FILTER (WHERE is_active = true) as active
+        FROM tenants
+      `;
+
+      return {
+        total: parseInt(result[0].total),
+        active: parseInt(result[0].active),
+      };
+    } catch (error: any) {
+      throw new Error(`${TenantErrorCode.DATABASE_ERROR}: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get upcoming weddings (next 30 days)
+   */
+  async getUpcomingWeddings(): Promise<
+    Array<{
+      id: number;
+      brideName: string;
+      groomName: string;
+      weddingDate: string;
+      venueName: string;
+      daysUntilWedding: number;
+    }>
+  > {
+    // Validate access permissions
+    const accessValidation = validateTenantAccess(this.securityContext, 'read');
+    if (!accessValidation.isValid) {
+      throw new Error(
+        `${accessValidation.error!.code}: ${accessValidation.error!.message}`
+      );
+    }
+
+    try {
+      const result = await sql`
+        SELECT 
+          id,
+          bride_name,
+          groom_name,
+          wedding_date,
+          venue_name,
+          (wedding_date - CURRENT_DATE) as days_until_wedding
+        FROM tenants 
+        WHERE is_active = true 
+          AND wedding_date >= CURRENT_DATE 
+          AND wedding_date <= CURRENT_DATE + INTERVAL '30 days'
+        ORDER BY wedding_date ASC
+        LIMIT 5
+      `;
+
+      return result.map((row: any) => ({
+        id: row.id,
+        brideName: row.bride_name,
+        groomName: row.groom_name,
+        weddingDate: row.wedding_date,
+        venueName: row.venue_name,
+        daysUntilWedding: parseInt(row.days_until_wedding),
+      }));
+    } catch (error: any) {
+      throw new Error(`${TenantErrorCode.DATABASE_ERROR}: ${error.message}`);
+    }
+  }
+
+  /**
+   * Get tenant context for a specific wedding
+   */
+  async getTenantContext(tenantId: number): Promise<{
+    wedding: {
+      id: number;
+      brideName: string;
+      groomName: string;
+      weddingDate: string;
+      venueName: string;
+      venueAddress: string;
+      themePrimaryColor: string;
+      themeSecondaryColor: string;
+      email?: string;
+      phone?: string;
+      daysUntilWedding: number;
+    };
+  } | null> {
+    // Validate access permissions
+    const accessValidation = validateTenantAccess(this.securityContext, 'read');
+    if (!accessValidation.isValid) {
+      throw new Error(
+        `${accessValidation.error!.code}: ${accessValidation.error!.message}`
+      );
+    }
+
+    // Validate tenant ID
+    const tenantIdValidation = validateTenantId(tenantId);
+    if (!tenantIdValidation.isValid) {
+      throw new Error(
+        `${tenantIdValidation.error!.code}: ${tenantIdValidation.error!.message}`
+      );
+    }
+
+    try {
+      const tenantResult = await sql`
+        SELECT 
+          id,
+          bride_name,
+          groom_name,
+          wedding_date,
+          venue_name,
+          venue_address,
+          theme_primary_color,
+          theme_secondary_color,
+          email,
+          phone,
+          (wedding_date - CURRENT_DATE) as days_until_wedding
+        FROM tenants 
+        WHERE id = ${tenantId} AND is_active = true
+      `;
+
+      if (tenantResult.length === 0) {
+        return null;
+      }
+
+      const tenant = tenantResult[0];
+
+      return {
+        wedding: {
+          id: tenant.id,
+          brideName: tenant.bride_name,
+          groomName: tenant.groom_name,
+          weddingDate: tenant.wedding_date,
+          venueName: tenant.venue_name,
+          venueAddress: tenant.venue_address,
+          themePrimaryColor: tenant.theme_primary_color,
+          themeSecondaryColor: tenant.theme_secondary_color,
+          email: tenant.email,
+          phone: tenant.phone,
+          daysUntilWedding: parseInt(tenant.days_until_wedding || '0'),
+        },
+      };
+    } catch (error: any) {
+      throw new Error(`${TenantErrorCode.DATABASE_ERROR}: ${error.message}`);
+    }
+  }
 }

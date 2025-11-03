@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { ChatMessage } from './services/chat.types';
 import { useSendMessage } from './services/chat.hooks';
 
-export const useChat = () => {
+export const useChat = (tenantId?: number) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const { sendMessage: sendMessageAPI, isSending } = useSendMessage();
 
@@ -27,6 +27,7 @@ export const useChat = () => {
             role: msg.role,
             content: msg.content,
           })),
+          tenantId, // Pass the selected tenant ID for context
         });
 
         const assistantMessage: ChatMessage = {
@@ -34,6 +35,8 @@ export const useChat = () => {
           role: 'assistant',
           content: data.message,
           timestamp: new Date(),
+          functionCalled: data.functionCalled,
+          functionResult: data.functionResult,
         };
 
         setMessages((prev) => [...prev, assistantMessage]);
@@ -48,12 +51,17 @@ export const useChat = () => {
         setMessages((prev) => [...prev, errorMessage]);
       }
     },
-    [messages, sendMessageAPI, isSending]
+    [messages, sendMessageAPI, isSending, tenantId]
   );
 
   const clearChat = useCallback(() => {
     setMessages([]);
   }, []);
+
+  // Clear messages when tenant context changes
+  useEffect(() => {
+    setMessages([]);
+  }, [tenantId]);
 
   return {
     messages,

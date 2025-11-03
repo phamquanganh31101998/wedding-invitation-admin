@@ -66,7 +66,7 @@ export default function AuthenticatedLayout({
     {
       key: '/ai-chat',
       icon: <MessageOutlined />,
-      label: 'AI Chat',
+      label: 'AI Assistant',
       onClick: () => router.push('/ai-chat'),
     },
     {

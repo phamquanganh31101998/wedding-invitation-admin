@@ -1,4 +1,3 @@
-import { TenantRepository } from '@/lib/repositories/tenant-repository';
 import { SecureTenantRepository } from '@/lib/repositories/secure-tenant-repository';
 import {
   Tenant,
@@ -19,12 +18,7 @@ import { generateUniqueSlug } from '@/lib/utils/slug';
 import { validateTenantData } from '@/lib/validation/tenant-validation';
 
 export class TenantService {
-  private tenantRepository: TenantRepository;
   private securityContext: SecurityContext | null = null;
-
-  constructor() {
-    this.tenantRepository = new TenantRepository();
-  }
 
   /**
    * Initialize security context for the service
