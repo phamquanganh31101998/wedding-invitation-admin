@@ -3,7 +3,11 @@
 import { Card, Typography } from 'antd';
 import { FileUpload } from '@/components/common/FileUpload';
 import { IFile } from '@/types/file';
-import { useGetFileList, useDeleteFile, useUpdateFileOrder } from '@/features/files/services';
+import {
+  useGetFileList,
+  useDeleteFile,
+  useUpdateFileOrder,
+} from '@/features/files/services';
 import ImageList from './ImageList';
 
 const { Title, Text } = Typography;
@@ -13,11 +17,16 @@ interface ImageListSectionProps {
   onFileUploadSuccess?: () => void;
 }
 
-
-
-export default function ImageListSection({ tenantId, onFileUploadSuccess }: ImageListSectionProps) {
+export default function ImageListSection({
+  tenantId,
+  onFileUploadSuccess,
+}: ImageListSectionProps) {
   // React Query hooks
-  const { fileList: imageFiles, isLoading: loading } = useGetFileList(tenantId, { fileTypes: 'gallery' });
+  const { fileList: imageFiles, isLoading: loading } = useGetFileList(
+    tenantId,
+    { fileTypes: 'image' }
+  );
+
   const { deleteFile: deleteImageFile } = useDeleteFile(tenantId);
   const { updateFileOrders } = useUpdateFileOrder(tenantId);
 
@@ -35,11 +44,20 @@ export default function ImageListSection({ tenantId, onFileUploadSuccess }: Imag
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-        <Title level={5} style={{ margin: 0 }}>Gallery Images</Title>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 8,
+        }}
+      >
+        <Title level={5} style={{ margin: 0 }}>
+          Gallery Images
+        </Title>
         <FileUpload
           tenantId={tenantId}
-          fileType="gallery"
+          fileType="image"
           fileName="Gallery photo"
           onUploadSuccess={handleFileUpload}
           acceptedTypes="image/*"
