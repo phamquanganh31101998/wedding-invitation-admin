@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import OpenAI from 'openai';
 import { AIPromptService } from '@/features/ai-chat/agents/ai-prompt.service';
-import { agentFunctions } from '@/features/ai-chat/agents/agent-functions';
+import { agentTools } from '@/features/ai-chat/agents/agent-tools';
 
 // AI Model configuration
-const AI_MODEL = 'gpt-3.5-turbo';
+const AI_MODEL = 'gpt-4.1-nano';
 
 // Prepare function definitions for OpenAI (using new tools format)
-const tools = agentFunctions.map((func) => ({
+const tools = agentTools.map((func) => ({
   type: 'function' as const,
   function: {
     name: func.name,
@@ -50,15 +50,17 @@ export async function POST(request: NextRequest) {
     const aiPromptService = new AIPromptService();
     const systemPrompt = await aiPromptService.generateSystemPrompt(tenantId);
 
+    const completionMessages = [
+      {
+        role: 'system',
+        content: systemPrompt,
+      },
+      ...messages,
+    ];
+
     const completion = await openai.chat.completions.create({
       model: AI_MODEL,
-      messages: [
-        {
-          role: 'system',
-          content: systemPrompt,
-        },
-        ...messages,
-      ],
+      messages: completionMessages,
       tools: tools,
       tool_choice: 'auto', // Let AI decide when to call functions
     });
@@ -82,36 +84,36 @@ export async function POST(request: NextRequest) {
 
       try {
         // Find and execute the function
-        const agentFunction = agentFunctions.find(
-          (f) => f.name === functionName
-        );
-        if (!agentFunction) {
+        const tool = agentTools.find((f) => f.name === functionName);
+        if (!tool) {
           throw new Error(`Function ${functionName} not found`);
         }
 
         console.log(`Executing function: ${functionName}`, functionArgs);
-        const functionResult = await agentFunction.handler(functionArgs);
+        const functionResult = await tool.handler(functionArgs);
 
         // Send function result back to AI for final response
+        const followUpMessages = [
+          {
+            role: 'system',
+            content: systemPrompt,
+          },
+          ...messages,
+          {
+            role: 'assistant',
+            content: assistantMessage.content,
+            tool_calls: assistantMessage.tool_calls,
+          },
+          {
+            role: 'tool',
+            tool_call_id: toolCall.id,
+            content: JSON.stringify(functionResult),
+          },
+        ];
+
         const followUpCompletion = await openai.chat.completions.create({
           model: AI_MODEL,
-          messages: [
-            {
-              role: 'system',
-              content: systemPrompt,
-            },
-            ...messages,
-            {
-              role: 'assistant',
-              content: assistantMessage.content,
-              tool_calls: assistantMessage.tool_calls,
-            },
-            {
-              role: 'tool',
-              tool_call_id: toolCall.id,
-              content: JSON.stringify(functionResult),
-            },
-          ],
+          messages: followUpMessages,
         });
 
         const finalMessage = followUpCompletion.choices[0]?.message?.content;

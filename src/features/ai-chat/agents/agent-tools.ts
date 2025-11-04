@@ -14,15 +14,27 @@ export interface AgentFunction {
 }
 
 /**
- * Get detailed RSVP summary for a specific wedding
+ * Get all guests for a specific wedding/tenant
  */
-async function getRsvpSummary(params: { tenantId: number }) {
-  const { tenantId } = params;
+async function getGuestByTenant(params: {
+  tenantId: number;
+  page?: number;
+  limit?: number;
+  attendance?: 'yes' | 'no' | 'maybe';
+  search?: string;
+}) {
+  const { tenantId, page = 1, limit = 50, attendance, search } = params;
 
   const securityContext = await getSecurityContext();
   const guestRepository = new SecureGuestRepository(securityContext);
 
-  return await guestRepository.getRsvpSummary(tenantId);
+  const filters = {
+    tenant_id: tenantId,
+    ...(attendance && { attendance }),
+    ...(search && { search }),
+  };
+
+  return await guestRepository.findMany(filters, { page, limit });
 }
 
 /**
@@ -205,22 +217,39 @@ async function searchTenants(params: {
 }
 
 // Define all available agent functions
-export const agentFunctions: AgentFunction[] = [
+export const agentTools: AgentFunction[] = [
   {
-    name: 'getRsvpSummary',
+    name: 'getGuestByTenant',
     description:
-      'Get detailed RSVP summary and recent activity for a specific wedding',
+      'Get all guests for a specific wedding/tenant with optional filtering and pagination',
     parameters: {
       type: 'object',
       properties: {
         tenantId: {
           type: 'number',
-          description: 'The wedding/tenant ID to get RSVP summary for',
+          description: 'The wedding/tenant ID to get guests for',
+        },
+        page: {
+          type: 'number',
+          description: 'Page number for pagination (default: 1)',
+        },
+        limit: {
+          type: 'number',
+          description: 'Number of guests per page (default: 50)',
+        },
+        attendance: {
+          type: 'string',
+          enum: ['yes', 'no', 'maybe'],
+          description: 'Filter by RSVP status',
+        },
+        search: {
+          type: 'string',
+          description: 'Search by guest name or relationship',
         },
       },
       required: ['tenantId'],
     },
-    handler: getRsvpSummary,
+    handler: getGuestByTenant,
   },
   {
     name: 'searchGuests',

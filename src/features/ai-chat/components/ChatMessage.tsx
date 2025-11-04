@@ -1,4 +1,4 @@
-import { Avatar, Tag } from 'antd';
+import { Avatar, Tag, Flex } from 'antd';
 import { UserOutlined, RobotOutlined, FunctionOutlined } from '@ant-design/icons';
 import { ChatMessage as ChatMessageType } from '../services/chat.types';
 
@@ -10,13 +10,10 @@ export default function ChatMessage({ message }: ChatMessageProps) {
   const isUser = message.role === 'user';
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        gap: 12,
-        marginBottom: 16,
-        flexDirection: isUser ? 'row-reverse' : 'row',
-      }}
+    <Flex
+      gap={12}
+      style={{ marginBottom: 16 }}
+      justify={isUser ? 'flex-end' : 'flex-start'}
     >
       <Avatar
         size="small"
@@ -41,14 +38,14 @@ export default function ChatMessage({ message }: ChatMessageProps) {
 
         {/* Show function call indicator for assistant messages */}
         {!isUser && message.functionCalled && (
-          <div style={{ marginTop: '8px' }}>
+          <Flex style={{ marginTop: '8px' }}>
             <Tag
               icon={<FunctionOutlined />}
               color="blue"
             >
               Executed: {message.functionCalled}
             </Tag>
-          </div>
+          </Flex>
         )}
 
         <div
@@ -62,6 +59,6 @@ export default function ChatMessage({ message }: ChatMessageProps) {
           {message.timestamp.toLocaleTimeString()}
         </div>
       </div>
-    </div>
+    </Flex>
   );
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Input, Button, Space } from 'antd';
+import { Input, Button, Flex } from 'antd';
 import { SendOutlined } from '@ant-design/icons';
 
 const { TextArea } = Input;
@@ -40,7 +40,7 @@ export default function ChatInput({ onSendMessage, disabled }: ChatInputProps) {
   };
 
   return (
-    <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}>
+    <Flex gap={8} align="flex-end">
       <TextArea
         ref={inputRef}
         value={message}
@@ -56,10 +56,9 @@ export default function ChatInput({ onSendMessage, disabled }: ChatInputProps) {
         icon={<SendOutlined />}
         onClick={handleSend}
         disabled={disabled || !message.trim()}
-        style={{ alignSelf: 'flex-end' }}
       >
         Send
       </Button>
-    </div>
+    </Flex>
   );
 }

@@ -74,6 +74,8 @@ yarn add <package>   # Add new dependency
 
 - UI app route components do not contain business logic, only page-level concerns (refer to src/app/(authenticated)/tenants/page.tsx to understand how you should write code)
 - Don't create test files
+- Don't create file summary after you've done your work
 - Use NiceModal for Modal
+- To layout components, use Antd Container, Flex, Row, Col,...Use inline style as least as possible
 - Try reuse existing components as much as possible
 - Separate components into smaller components (single concerns)

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { Card, Empty, Spin } from 'antd';
+import { Card, Empty, Spin, Flex } from 'antd';
 import ChatMessage from './ChatMessage';
 import { ChatMessage as ChatMessageType } from '../services/chat.types';
 
@@ -35,26 +35,24 @@ export default function ChatWindow({ messages, isLoading }: ChatWindowProps) {
       }}
     >
       {messages.length === 0 ? (
-        <Empty
-          description="Start a conversation with the AI assistant"
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '100%',
-          }}
-        />
+        <Flex
+          vertical
+          justify="center"
+          align="center"
+          style={{ height: '100%' }}
+        >
+          <Empty description="Start a conversation with the AI assistant" />
+        </Flex>
       ) : (
         <div>
           {messages.map((message) => (
             <ChatMessage key={message.id} message={message} />
           ))}
           {isLoading && (
-            <div style={{ textAlign: 'center', padding: '16px' }}>
+            <Flex justify="center" align="center" style={{ padding: '16px' }}>
               <Spin size="small" />
               <span style={{ marginLeft: 8 }}>AI is thinking...</span>
-            </div>
+            </Flex>
           )}
           <div ref={messagesEndRef} />
         </div>
