@@ -2,10 +2,12 @@
 
 import { Tabs } from 'antd';
 import { TenantUI } from '@/types/tenant';
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 import OverviewTab from './OverviewTab/OverviewTab';
 import ThemeTab from './ThemeTab/ThemeTab';
 import SettingsTab from './SettingsTab/SettingsTab';
 import FilesTab from './FilesTab/FilesTab';
+import GuestsTab from './GuestsTab/GuestsTab';
 
 interface TenantDetailTabsProps {
   tenant: TenantUI;
@@ -50,18 +52,8 @@ export default function TenantDetailTabs({
       ),
     },
     {
-      key: 'files',
-      label: 'Media Files',
-      children: (
-        <FilesTab
-          tenant={tenant}
-          onFileUploadSuccess={onRefreshTenant}
-        />
-      ),
-    },
-    {
       key: 'theme',
-      label: 'Theme Configuration',
+      label: 'Theme',
       children: (
         <ThemeTab
           tenant={tenant}
@@ -76,8 +68,27 @@ export default function TenantDetailTabs({
       ),
     },
     {
+      key: 'files',
+      label: 'Files',
+      children: (
+        <FilesTab
+          tenant={tenant}
+          onFileUploadSuccess={onRefreshTenant}
+        />
+      ),
+    },
+    {
+      key: 'guests',
+      label: 'Guests',
+      children: (
+        <ErrorBoundary>
+          <GuestsTab tenantId={tenant.id} />
+        </ErrorBoundary>
+      ),
+    },
+    {
       key: 'settings',
-      label: 'Status & Settings',
+      label: 'Settings',
       children: (
         <SettingsTab
           tenant={tenant}

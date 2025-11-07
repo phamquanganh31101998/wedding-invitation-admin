@@ -1,0 +1,152 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import {
+  SecureGuestRepository,
+  GuestCreateRequest,
+} from '@/lib/repositories/secure-guest-repository';
+import { TenantErrorCode } from '@/types/tenant';
+import {
+  getSecurityContext,
+  createSecurityErrorResponse,
+} from '@/lib/security/tenant-security';
+import { parseGuestFile } from '@/features/guests/services/guest-import.service';
+
+/**
+ * POST /api/tenants/[id]/guests/import - Import guests from CSV/Excel file
+ */
+export async function POST(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    // Check authentication
+    const session = await getServerSession();
+    if (!session?.user) {
+      const errorResponse = createSecurityErrorResponse(
+        TenantErrorCode.UNAUTHORIZED,
+        'Authentication required',
+        401
+      );
+      return NextResponse.json(errorResponse, {
+        status: errorResponse.statusCode,
+      });
+    }
+
+    const resolvedParams = await params;
+    const tenantId = parseInt(resolvedParams.id);
+
+    if (isNaN(tenantId)) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: TenantErrorCode.VALIDATION_ERROR,
+            message: 'Invalid tenant ID',
+          },
+        },
+        { status: 400 }
+      );
+    }
+
+    // Parse multipart/form-data
+    const formData = await request.formData();
+    const file = formData.get('file') as File;
+
+    if (!file) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: TenantErrorCode.VALIDATION_ERROR,
+            message: 'No file provided',
+          },
+        },
+        { status: 400 }
+      );
+    }
+
+    // Parse and validate the file
+    const parseResult = await parseGuestFile(file);
+
+    // If there are parsing errors at file level (row 0), return immediately
+    const fileErrors = parseResult.errors.filter((e) => e.row === 0);
+    if (fileErrors.length > 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: {
+            code: TenantErrorCode.VALIDATION_ERROR,
+            message: fileErrors[0].errors[0],
+          },
+        },
+        { status: 400 }
+      );
+    }
+
+    // Get security context and create secure repository
+    const securityContext = await getSecurityContext();
+    const guestRepository = new SecureGuestRepository(securityContext);
+
+    // Import valid rows
+    let imported = 0;
+    const importErrors: Array<{ row: number; errors: string[] }> = [
+      ...parseResult.errors,
+    ];
+
+    for (const guestRow of parseResult.data) {
+      try {
+        const createData: GuestCreateRequest = {
+          tenant_id: tenantId,
+          name: guestRow.name.trim(),
+          relationship: guestRow.relationship.trim(),
+          attendance: guestRow.attendance as 'yes' | 'no' | 'maybe',
+          message: guestRow.message?.trim() || undefined,
+        };
+
+        await guestRepository.create(createData);
+        imported++;
+      } catch (error: any) {
+        // If a database error occurs during import, we still continue with other rows
+        console.error('Error importing guest row:', error);
+      }
+    }
+
+    const failed = parseResult.errors.length;
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        imported,
+        failed,
+        errors: importErrors,
+      },
+      message: `Successfully imported ${imported} guest(s). ${failed} row(s) failed validation.`,
+    });
+  } catch (error: any) {
+    console.error('Error importing guests:', error);
+
+    const errorCode = error.message.split(':')[0];
+    let statusCode = 500;
+
+    if (errorCode === TenantErrorCode.VALIDATION_ERROR) {
+      statusCode = 400;
+    } else if (errorCode === TenantErrorCode.TENANT_NOT_FOUND) {
+      statusCode = 404;
+    } else if (errorCode === TenantErrorCode.UNAUTHORIZED) {
+      statusCode = 401;
+    } else if (errorCode === TenantErrorCode.FORBIDDEN) {
+      statusCode = 403;
+    }
+
+    return NextResponse.json(
+      {
+        success: false,
+        error: {
+          code: errorCode || TenantErrorCode.DATABASE_ERROR,
+          message: error.message,
+        },
+      },
+      { status: statusCode }
+    );
+  }
+}
