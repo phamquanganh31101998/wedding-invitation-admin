@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import OpenAI from 'openai';
 import { AIPromptService } from '@/features/ai-chat/agents/ai-prompt.service';
 import { agentTools } from '@/features/ai-chat/agents/agent-tools';
@@ -19,12 +18,6 @@ const tools = agentTools.map((func) => ({
 
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication
-    const session = await getServerSession();
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     // Check if OpenAI API key is configured
     if (!process.env.OPENAI_API_KEY) {
       return NextResponse.json(

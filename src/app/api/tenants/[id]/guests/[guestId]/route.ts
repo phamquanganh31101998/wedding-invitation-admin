@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import {
   SecureGuestRepository,
   GuestUpdateRequest,
@@ -18,19 +17,6 @@ export async function GET(
   { params }: { params: Promise<{ id: string; guestId: string }> }
 ) {
   try {
-    // Check authentication
-    const session = await getServerSession();
-    if (!session?.user) {
-      const errorResponse = createSecurityErrorResponse(
-        TenantErrorCode.UNAUTHORIZED,
-        'Authentication required',
-        401
-      );
-      return NextResponse.json(errorResponse, {
-        status: errorResponse.statusCode,
-      });
-    }
-
     const resolvedParams = await params;
     const tenantId = parseInt(resolvedParams.id);
     const guestId = parseInt(resolvedParams.guestId);
@@ -106,19 +92,6 @@ export async function PUT(
   { params }: { params: Promise<{ id: string; guestId: string }> }
 ) {
   try {
-    // Check authentication
-    const session = await getServerSession();
-    if (!session?.user) {
-      const errorResponse = createSecurityErrorResponse(
-        TenantErrorCode.UNAUTHORIZED,
-        'Authentication required',
-        401
-      );
-      return NextResponse.json(errorResponse, {
-        status: errorResponse.statusCode,
-      });
-    }
-
     const resolvedParams = await params;
     const tenantId = parseInt(resolvedParams.id);
     const guestId = parseInt(resolvedParams.guestId);
@@ -217,19 +190,6 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string; guestId: string }> }
 ) {
   try {
-    // Check authentication
-    const session = await getServerSession();
-    if (!session?.user) {
-      const errorResponse = createSecurityErrorResponse(
-        TenantErrorCode.UNAUTHORIZED,
-        'Authentication required',
-        401
-      );
-      return NextResponse.json(errorResponse, {
-        status: errorResponse.statusCode,
-      });
-    }
-
     const resolvedParams = await params;
     const tenantId = parseInt(resolvedParams.id);
     const guestId = parseInt(resolvedParams.guestId);

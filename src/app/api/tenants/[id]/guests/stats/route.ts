@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { SecureGuestRepository } from '@/lib/repositories/secure-guest-repository';
 import { TenantErrorCode } from '@/types/tenant';
 import {
@@ -15,19 +14,6 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Check authentication
-    const session = await getServerSession();
-    if (!session?.user) {
-      const errorResponse = createSecurityErrorResponse(
-        TenantErrorCode.UNAUTHORIZED,
-        'Authentication required',
-        401
-      );
-      return NextResponse.json(errorResponse, {
-        status: errorResponse.statusCode,
-      });
-    }
-
     const resolvedParams = await params;
     const tenantId = parseInt(resolvedParams.id);
 

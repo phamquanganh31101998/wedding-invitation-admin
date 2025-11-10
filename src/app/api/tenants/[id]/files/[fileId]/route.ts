@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { FileRepository } from '@/lib/repositories/file-repository';
 
 export async function PATCH(
@@ -7,12 +6,6 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string; fileId: string }> }
 ) {
   try {
-    // Check authentication
-    const session = await getServerSession();
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const { id, fileId } = await params;
     const tenantId = parseInt(id);
     const fileIdNum = parseInt(fileId);

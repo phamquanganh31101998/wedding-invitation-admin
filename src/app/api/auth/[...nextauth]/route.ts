@@ -16,8 +16,8 @@ const handler = NextAuth({
         ) {
           return {
             id: '1',
-            name: 'Admin',
-            email: 'admin@wedding.com',
+            name: process.env.ADMIN_USERNAME,
+            email: 'root@localhost',
           };
         }
         return null;
