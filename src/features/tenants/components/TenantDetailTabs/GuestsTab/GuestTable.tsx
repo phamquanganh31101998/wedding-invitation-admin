@@ -155,22 +155,6 @@ export default function GuestTable({
         ),
     },
     {
-      title: 'Created',
-      dataIndex: 'createdAt',
-      key: 'createdAt',
-      sorter: true,
-      width: '13%',
-      responsive: ['md'],
-      render: (date: string, record) =>
-        record.id < 0 ? (
-          <Skeleton.Input active size="small" style={{ width: 90 }} />
-        ) : (
-          <Tooltip title={dayjs(date).format('MMMM DD, YYYY HH:mm')}>
-            {dayjs(date).format('MMM DD, YYYY')}
-          </Tooltip>
-        ),
-    },
-    {
       title: 'Updated',
       dataIndex: 'updatedAt',
       key: 'updatedAt',

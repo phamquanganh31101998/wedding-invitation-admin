@@ -5,7 +5,7 @@ import {
 } from '@/lib/repositories/secure-guest-repository';
 import { TenantErrorCode } from '@/types/tenant';
 import { getSecurityContext } from '@/lib/security/tenant-security';
-import { parseGuestFile } from '@/features/guests/services/guest-import.service';
+import { parseGuestFileServer } from '@/features/guests/services/guest-import-server.service';
 import { checkTenantIdParam } from '@/lib/utils/api-helpers';
 
 /**
@@ -37,8 +37,8 @@ export async function POST(
       );
     }
 
-    // Parse and validate the file
-    const parseResult = await parseGuestFile(file);
+    // Parse and validate the file (server-side)
+    const parseResult = await parseGuestFileServer(file);
 
     // If there are parsing errors at file level (row 0), return immediately
     const fileErrors = parseResult.errors.filter((e) => e.row === 0);
