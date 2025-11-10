@@ -13,6 +13,7 @@ import {
   Row,
   Col,
   Card,
+  Flex,
 } from 'antd';
 import {
   UploadOutlined,
@@ -212,21 +213,38 @@ export default NiceModal.create(
               style={{ marginBottom: 20 }}
             />
 
-            <Upload
-              fileList={fileList}
-              onChange={handleFileChange}
-              beforeUpload={() => false}
-              accept={IMPORT_ACCEPTED_FORMATS.join(',')}
-              maxCount={1}
-            >
-              <Button
-                icon={<UploadOutlined />}
-                loading={isProcessing}
-                size="large"
+            <Flex align='start' gap={8}>
+              <Upload
+                fileList={fileList}
+                onChange={handleFileChange}
+                beforeUpload={() => false}
+                accept={IMPORT_ACCEPTED_FORMATS.join(',')}
+                maxCount={1}
               >
-                {isProcessing ? 'Processing...' : 'Select File'}
+                <Button
+                  icon={<UploadOutlined />}
+                  loading={isProcessing}
+                  size="large"
+                >
+                  {isProcessing ? 'Processing...' : 'Select File'}
+                </Button>
+              </Upload>
+              <Button
+                size="large"
+                onClick={() => {
+                  // Download sample file from API
+                  const link = document.createElement('a');
+                  link.href = '/api/tenants/import-sample';
+                  link.download = 'import-sample.csv';
+                  link.style.visibility = 'hidden';
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                }}
+              >
+                Download sample file
               </Button>
-            </Upload>
+            </Flex>
             {fileList.length === 0 && (
               <div style={{ color: '#8c8c8c', fontSize: 12, marginTop: 8 }}>
                 Select a CSV or Excel file to import guests
