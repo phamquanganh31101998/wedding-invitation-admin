@@ -71,10 +71,7 @@ export default function TenantDetailTabs({
       key: 'files',
       label: 'Files',
       children: (
-        <FilesTab
-          tenant={tenant}
-          onFileUploadSuccess={onRefreshTenant}
-        />
+        <FilesTab tenant={tenant} onFileUploadSuccess={onRefreshTenant} />
       ),
     },
     {
@@ -99,11 +96,5 @@ export default function TenantDetailTabs({
     },
   ];
 
-  return (
-    <Tabs
-      defaultActiveKey="overview"
-      type="card"
-      items={tabItems}
-    />
-  );
+  return <Tabs defaultActiveKey="overview" type="card" items={tabItems} />;
 }

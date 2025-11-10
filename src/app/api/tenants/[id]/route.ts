@@ -6,6 +6,7 @@ import {
   convertObjectToSnakeCase,
   convertObjectToCamelCase,
 } from '@/lib/utils/case-conversion';
+import { checkTenantIdParam } from '@/lib/utils/api-helpers';
 
 const tenantService = new TenantService();
 
@@ -18,20 +19,8 @@ export async function GET(
 ) {
   try {
     const resolvedParams = await params;
-    const tenantId = parseInt(resolvedParams.id);
-
-    if (isNaN(tenantId)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: TenantErrorCode.VALIDATION_ERROR,
-            message: 'Invalid tenant ID',
-          },
-        },
-        { status: 400 }
-      );
-    }
+    const { tenantId, error } = checkTenantIdParam(resolvedParams.id);
+    if (error) return error;
 
     const tenant = await tenantService.getTenantById(tenantId);
 
@@ -87,20 +76,8 @@ export async function PUT(
 ) {
   try {
     const resolvedParams = await params;
-    const tenantId = parseInt(resolvedParams.id);
-
-    if (isNaN(tenantId)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: TenantErrorCode.VALIDATION_ERROR,
-            message: 'Invalid tenant ID',
-          },
-        },
-        { status: 400 }
-      );
-    }
+    const { tenantId, error } = checkTenantIdParam(resolvedParams.id);
+    if (error) return error;
 
     const body = await request.json();
 
@@ -160,20 +137,8 @@ export async function DELETE(
 ) {
   try {
     const resolvedParams = await params;
-    const tenantId = parseInt(resolvedParams.id);
-
-    if (isNaN(tenantId)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: TenantErrorCode.VALIDATION_ERROR,
-            message: 'Invalid tenant ID',
-          },
-        },
-        { status: 400 }
-      );
-    }
+    const { tenantId, error } = checkTenantIdParam(resolvedParams.id);
+    if (error) return error;
 
     await tenantService.deleteTenant(tenantId);
 

@@ -1,7 +1,19 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Button, Space, Input, Select, Row, Col, Card, Modal, message, Alert, Tooltip } from 'antd';
+import {
+  Button,
+  Space,
+  Input,
+  Select,
+  Row,
+  Col,
+  Card,
+  Modal,
+  message,
+  Alert,
+  Tooltip,
+} from 'antd';
 import {
   PlusOutlined,
   ImportOutlined,
@@ -10,7 +22,11 @@ import {
   ExclamationCircleOutlined,
 } from '@ant-design/icons';
 import { useModal } from '@ebay/nice-modal-react';
-import { useGetGuestList, useExportGuests, useDeleteGuest } from '@/features/guests/services';
+import {
+  useGetGuestList,
+  useExportGuests,
+  useDeleteGuest,
+} from '@/features/guests/services';
 import { IGuest, IGuestListParams } from '@/features/guests/services';
 import GuestStatistics from './GuestStatistics';
 import GuestTable from './GuestTable';
@@ -234,10 +250,7 @@ export default function GuestsTab({ tenantId }: GuestsTabProps) {
                 </Button>
               </Tooltip>
               <Tooltip title="Import guests from CSV or Excel file">
-                <Button
-                  icon={<ImportOutlined />}
-                  onClick={handleImport}
-                >
+                <Button icon={<ImportOutlined />} onClick={handleImport}>
                   Import
                 </Button>
               </Tooltip>

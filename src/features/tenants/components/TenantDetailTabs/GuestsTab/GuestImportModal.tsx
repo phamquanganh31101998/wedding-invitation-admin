@@ -253,7 +253,9 @@ export default NiceModal.create(
                         {parsedData.validRows.length}
                       </Text>
                     </div>
-                    <Text type="secondary" style={{ fontSize: 13 }}>Valid Rows</Text>
+                    <Text type="secondary" style={{ fontSize: 13 }}>
+                      Valid Rows
+                    </Text>
                   </div>
                 </Card>
               </Col>
@@ -268,7 +270,9 @@ export default NiceModal.create(
                         {parsedData.errors.length}
                       </Text>
                     </div>
-                    <Text type="secondary" style={{ fontSize: 13 }}>Errors</Text>
+                    <Text type="secondary" style={{ fontSize: 13 }}>
+                      Errors
+                    </Text>
                   </div>
                 </Card>
               </Col>
@@ -322,7 +326,9 @@ export default NiceModal.create(
                         {importResult.imported}
                       </Text>
                     </div>
-                    <Text type="secondary" style={{ fontSize: 13 }}>Successfully Imported</Text>
+                    <Text type="secondary" style={{ fontSize: 13 }}>
+                      Successfully Imported
+                    </Text>
                   </div>
                 </Card>
               </Col>
@@ -337,7 +343,9 @@ export default NiceModal.create(
                         {importResult.failed}
                       </Text>
                     </div>
-                    <Text type="secondary" style={{ fontSize: 13 }}>Failed</Text>
+                    <Text type="secondary" style={{ fontSize: 13 }}>
+                      Failed
+                    </Text>
                   </div>
                 </Card>
               </Col>

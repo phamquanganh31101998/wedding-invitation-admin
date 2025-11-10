@@ -2,8 +2,20 @@
 
 import { Row, Col, Image, Button, Card, Popconfirm } from 'antd';
 import { DeleteOutlined, DragOutlined } from '@ant-design/icons';
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import { arrayMove, SortableContext, sortableKeyboardCoordinates, rectSortingStrategy } from '@dnd-kit/sortable';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  rectSortingStrategy,
+} from '@dnd-kit/sortable';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IFile } from '@/types/file';
@@ -21,13 +33,8 @@ interface SortableImageItemProps {
 }
 
 const SortableImageItem = ({ file, onDelete }: SortableImageItemProps) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-  } = useSortable({ id: file.id });
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id: file.id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -83,7 +90,7 @@ const SortableImageItem = ({ file, onDelete }: SortableImageItemProps) => {
                 {...listeners}
                 style={{
                   backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                  cursor: 'grab'
+                  cursor: 'grab',
                 }}
               />
             </div>
@@ -99,7 +106,12 @@ const SortableImageItem = ({ file, onDelete }: SortableImageItemProps) => {
   );
 };
 
-export default function ImageList({ imageFiles, loading, onDelete, onReorder }: ImageListProps) {
+export default function ImageList({
+  imageFiles,
+  loading,
+  onDelete,
+  onReorder,
+}: ImageListProps) {
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -111,8 +123,12 @@ export default function ImageList({ imageFiles, loading, onDelete, onReorder }: 
     const { active, over } = event;
 
     if (active.id !== over.id) {
-      const oldIndex = imageFiles.findIndex((file: IFile) => file.id === active.id);
-      const newIndex = imageFiles.findIndex((file: IFile) => file.id === over.id);
+      const oldIndex = imageFiles.findIndex(
+        (file: IFile) => file.id === active.id
+      );
+      const newIndex = imageFiles.findIndex(
+        (file: IFile) => file.id === over.id
+      );
 
       const newImageFiles = arrayMove(imageFiles, oldIndex, newIndex);
       onReorder(newImageFiles);
@@ -125,23 +141,26 @@ export default function ImageList({ imageFiles, loading, onDelete, onReorder }: 
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}
     >
-      <SortableContext items={imageFiles.map((f: IFile) => f.id)} strategy={rectSortingStrategy}>
+      <SortableContext
+        items={imageFiles.map((f: IFile) => f.id)}
+        strategy={rectSortingStrategy}
+      >
         <Row gutter={[16, 16]} style={{ minHeight: loading ? 100 : 'auto' }}>
           {loading ? (
             <Col span={24} style={{ textAlign: 'center', padding: 40 }}>
               Loading images...
             </Col>
           ) : imageFiles.length === 0 ? (
-            <Col span={24} style={{ textAlign: 'center', padding: 40, color: '#999' }}>
+            <Col
+              span={24}
+              style={{ textAlign: 'center', padding: 40, color: '#999' }}
+            >
               No images uploaded yet
             </Col>
           ) : (
             imageFiles.map((file: IFile) => (
               <Col key={file.id} xs={24} sm={12} md={8} lg={6}>
-                <SortableImageItem
-                  file={file}
-                  onDelete={onDelete}
-                />
+                <SortableImageItem file={file} onDelete={onDelete} />
               </Col>
             ))
           )}

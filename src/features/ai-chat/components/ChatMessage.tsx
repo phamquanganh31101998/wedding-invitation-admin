@@ -1,5 +1,9 @@
 import { Avatar, Tag, Flex } from 'antd';
-import { UserOutlined, RobotOutlined, FunctionOutlined } from '@ant-design/icons';
+import {
+  UserOutlined,
+  RobotOutlined,
+  FunctionOutlined,
+} from '@ant-design/icons';
 import { ChatMessage as ChatMessageType } from '../services/chat.types';
 
 interface ChatMessageProps {
@@ -32,17 +36,19 @@ export default function ChatMessage({ message }: ChatMessageProps) {
           color: isUser ? 'white' : 'black',
         }}
       >
-        <div style={{ color: isUser ? 'white' : 'inherit', whiteSpace: 'pre-wrap' }}>
+        <div
+          style={{
+            color: isUser ? 'white' : 'inherit',
+            whiteSpace: 'pre-wrap',
+          }}
+        >
           {message.content}
         </div>
 
         {/* Show function call indicator for assistant messages */}
         {!isUser && message.functionCalled && (
           <Flex style={{ marginTop: '8px' }}>
-            <Tag
-              icon={<FunctionOutlined />}
-              color="blue"
-            >
+            <Tag icon={<FunctionOutlined />} color="blue">
               Executed: {message.functionCalled}
             </Tag>
           </Flex>

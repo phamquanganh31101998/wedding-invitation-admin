@@ -20,9 +20,7 @@ export default function Providers({ children }: ProvidersProps) {
             },
           }}
         >
-          <NiceModal.Provider>
-            {children}
-          </NiceModal.Provider>
+          <NiceModal.Provider>{children}</NiceModal.Provider>
         </ConfigProvider>
       </QueryProvider>
     </AuthSessionProvider>

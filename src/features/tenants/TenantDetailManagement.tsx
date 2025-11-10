@@ -15,7 +15,11 @@ import { useModal } from '@ebay/nice-modal-react';
 import DashboardBreadcrumb from '@/components/common/DashboardBreadcrumb';
 import TenantDetailTabs from './components/TenantDetailTabs/TenantDetailTabs';
 import ThemePreviewModal from './components/ThemePreviewModal/ThemePreviewModal';
-import { useGetTenantDetail, useUpdateTenantField, useUpdateTenantStatus } from './services';
+import {
+  useGetTenantDetail,
+  useUpdateTenantField,
+  useUpdateTenantStatus,
+} from './services';
 
 const { Title } = Typography;
 
@@ -28,7 +32,9 @@ interface TenantDetailManagementProps {
   tenantId: string;
 }
 
-export default function TenantDetailManagement({ tenantId }: TenantDetailManagementProps) {
+export default function TenantDetailManagement({
+  tenantId,
+}: TenantDetailManagementProps) {
   const router = useRouter();
   const themePreviewModal = useModal(ThemePreviewModal);
 
@@ -40,8 +46,10 @@ export default function TenantDetailManagement({ tenantId }: TenantDetailManagem
 
   // Use tenant services
   const { tenant, isLoading, error, refetch } = useGetTenantDetail(tenantId);
-  const { updateField, isUpdating: isUpdatingField } = useUpdateTenantField(tenantId);
-  const { updateStatus, isUpdating: isUpdatingStatus } = useUpdateTenantStatus(tenantId);
+  const { updateField, isUpdating: isUpdatingField } =
+    useUpdateTenantField(tenantId);
+  const { updateStatus, isUpdating: isUpdatingStatus } =
+    useUpdateTenantStatus(tenantId);
 
   // Handle error or not found
   if (error && error.message.includes('TENANT_NOT_FOUND')) {
@@ -67,7 +75,7 @@ export default function TenantDetailManagement({ tenantId }: TenantDetailManagem
 
   // Update editing values
   const updateEditingValue = (field: string, value: any) => {
-    setEditState(prev => ({
+    setEditState((prev) => ({
       ...prev,
       editingValues: { ...prev.editingValues, [field]: value },
     }));
@@ -143,12 +151,14 @@ export default function TenantDetailManagement({ tenantId }: TenantDetailManagem
         />
 
         {/* Page Header */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: 24
-        }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: 24,
+          }}
+        >
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <Button
               type="text"
@@ -167,7 +177,9 @@ export default function TenantDetailManagement({ tenantId }: TenantDetailManagem
           <Space>
             <Button
               type={tenant.isActive ? 'default' : 'primary'}
-              icon={tenant.isActive ? <StopOutlined /> : <CheckCircleOutlined />}
+              icon={
+                tenant.isActive ? <StopOutlined /> : <CheckCircleOutlined />
+              }
               onClick={() => handleUpdateTenantStatus(!tenant.isActive)}
               loading={isUpdatingStatus}
             >

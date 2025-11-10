@@ -5,7 +5,7 @@ import { Typography, Card, Row, Col } from 'antd';
 import {
   TeamOutlined,
   SettingOutlined,
-  BarChartOutlined
+  BarChartOutlined,
 } from '@ant-design/icons';
 import DashboardBreadcrumb from '@/components/common/DashboardBreadcrumb';
 
@@ -32,7 +32,8 @@ export default function DashboardPage() {
                 margin: '0 auto',
               }}
             >
-              Manage wedding invitations, track RSVPs, and handle all your wedding planning needs.
+              Manage wedding invitations, track RSVPs, and handle all your
+              wedding planning needs.
             </Paragraph>
           </div>
         </Card>
@@ -45,7 +46,9 @@ export default function DashboardPage() {
               style={{ textAlign: 'center', height: '200px' }}
               onClick={() => router.push('/tenants')}
             >
-              <TeamOutlined style={{ fontSize: 48, color: '#1890ff', marginBottom: 16 }} />
+              <TeamOutlined
+                style={{ fontSize: 48, color: '#1890ff', marginBottom: 16 }}
+              />
               <Title level={3}>Tenant Management</Title>
               <Paragraph>
                 Create and manage wedding tenant spaces for couples
@@ -58,13 +61,15 @@ export default function DashboardPage() {
               hoverable
               style={{ textAlign: 'center', height: '200px', opacity: 0.6 }}
             >
-              <BarChartOutlined style={{ fontSize: 48, color: '#52c41a', marginBottom: 16 }} />
+              <BarChartOutlined
+                style={{ fontSize: 48, color: '#52c41a', marginBottom: 16 }}
+              />
               <Title level={3}>RSVP Tracking</Title>
-              <Paragraph>
-                Monitor and manage wedding RSVPs
-              </Paragraph>
+              <Paragraph>Monitor and manage wedding RSVPs</Paragraph>
               <div style={{ position: 'absolute', top: 8, right: 8 }}>
-                <span style={{ fontSize: '12px', color: '#999' }}>Coming Soon</span>
+                <span style={{ fontSize: '12px', color: '#999' }}>
+                  Coming Soon
+                </span>
               </div>
             </Card>
           </Col>
@@ -74,13 +79,15 @@ export default function DashboardPage() {
               hoverable
               style={{ textAlign: 'center', height: '200px', opacity: 0.6 }}
             >
-              <SettingOutlined style={{ fontSize: 48, color: '#fa8c16', marginBottom: 16 }} />
+              <SettingOutlined
+                style={{ fontSize: 48, color: '#fa8c16', marginBottom: 16 }}
+              />
               <Title level={3}>Settings</Title>
-              <Paragraph>
-                Configure system settings and preferences
-              </Paragraph>
+              <Paragraph>Configure system settings and preferences</Paragraph>
               <div style={{ position: 'absolute', top: 8, right: 8 }}>
-                <span style={{ fontSize: '12px', color: '#999' }}>Coming Soon</span>
+                <span style={{ fontSize: '12px', color: '#999' }}>
+                  Coming Soon
+                </span>
               </div>
             </Card>
           </Col>

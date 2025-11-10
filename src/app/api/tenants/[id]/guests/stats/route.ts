@@ -5,6 +5,7 @@ import {
   getSecurityContext,
   createSecurityErrorResponse,
 } from '@/lib/security/tenant-security';
+import { checkTenantIdParam } from '@/lib/utils/api-helpers';
 
 /**
  * GET /api/tenants/[id]/guests/stats - Get guest statistics for a specific tenant
@@ -15,20 +16,8 @@ export async function GET(
 ) {
   try {
     const resolvedParams = await params;
-    const tenantId = parseInt(resolvedParams.id);
-
-    if (isNaN(tenantId)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: TenantErrorCode.VALIDATION_ERROR,
-            message: 'Invalid tenant ID',
-          },
-        },
-        { status: 400 }
-      );
-    }
+    const { tenantId, error } = checkTenantIdParam(resolvedParams.id);
+    if (error) return error;
 
     // Get security context and create secure repository
     const securityContext = await getSecurityContext();

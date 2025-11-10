@@ -77,7 +77,14 @@ export default function ColorField({
   return (
     <div>
       <Text strong>{label}:</Text>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginTop: 4,
+        }}
+      >
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div
             style={{

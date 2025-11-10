@@ -4,11 +4,9 @@ import {
   GuestCreateRequest,
 } from '@/lib/repositories/secure-guest-repository';
 import { TenantErrorCode } from '@/types/tenant';
-import {
-  getSecurityContext,
-  createSecurityErrorResponse,
-} from '@/lib/security/tenant-security';
+import { getSecurityContext } from '@/lib/security/tenant-security';
 import { parseGuestFile } from '@/features/guests/services/guest-import.service';
+import { checkTenantIdParam } from '@/lib/utils/api-helpers';
 
 /**
  * POST /api/tenants/[id]/guests/import - Import guests from CSV/Excel file
@@ -19,20 +17,8 @@ export async function POST(
 ) {
   try {
     const resolvedParams = await params;
-    const tenantId = parseInt(resolvedParams.id);
-
-    if (isNaN(tenantId)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: TenantErrorCode.VALIDATION_ERROR,
-            message: 'Invalid tenant ID',
-          },
-        },
-        { status: 400 }
-      );
-    }
+    const { tenantId, error } = checkTenantIdParam(resolvedParams.id);
+    if (error) return error;
 
     // Parse multipart/form-data
     const formData = await request.formData();

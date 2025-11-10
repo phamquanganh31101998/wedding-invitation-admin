@@ -28,10 +28,7 @@ export default NiceModal.create(({ onSuccess }: CreateTenantModalProps) => {
       footer={null}
       width={800}
     >
-      <CreateTenantForm
-        onSuccess={handleSuccess}
-        onCancel={handleCancel}
-      />
+      <CreateTenantForm onSuccess={handleSuccess} onCancel={handleCancel} />
     </Modal>
   );
 });

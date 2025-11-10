@@ -3,7 +3,11 @@
 import { Card, Typography } from 'antd';
 import { FileUpload } from '@/components/common/FileUpload';
 import { IFile } from '@/types/file';
-import { useGetFileList, useDeleteFile, useUpdateFileOrder } from '@/features/files/services';
+import {
+  useGetFileList,
+  useDeleteFile,
+  useUpdateFileOrder,
+} from '@/features/files/services';
 import AudioList from './AudioList';
 
 const { Title, Text } = Typography;
@@ -13,9 +17,15 @@ interface AudioListSectionProps {
   onFileUploadSuccess?: () => void;
 }
 
-export default function AudioListSection({ tenantId, onFileUploadSuccess }: AudioListSectionProps) {
+export default function AudioListSection({
+  tenantId,
+  onFileUploadSuccess,
+}: AudioListSectionProps) {
   // React Query hooks
-  const { fileList: audioFiles, isLoading: loading } = useGetFileList(tenantId, { fileTypes: 'music' });
+  const { fileList: audioFiles, isLoading: loading } = useGetFileList(
+    tenantId,
+    { fileTypes: 'music' }
+  );
   const { deleteFile: deleteAudioFile } = useDeleteFile(tenantId);
   const { updateFileOrders } = useUpdateFileOrder(tenantId);
 
@@ -33,8 +43,17 @@ export default function AudioListSection({ tenantId, onFileUploadSuccess }: Audi
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-        <Title level={5} style={{ margin: 0 }}>Wedding Music</Title>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 8,
+        }}
+      >
+        <Title level={5} style={{ margin: 0 }}>
+          Wedding Music
+        </Title>
         <FileUpload
           tenantId={tenantId}
           fileType="music"

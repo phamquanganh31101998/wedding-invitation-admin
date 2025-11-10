@@ -7,10 +7,16 @@ interface WeddingDateFieldProps {
   setFieldValue: (field: string, value: any) => void;
 }
 
-export default function WeddingDateField({ errors, touched, setFieldValue }: WeddingDateFieldProps) {
+export default function WeddingDateField({
+  errors,
+  touched,
+  setFieldValue,
+}: WeddingDateFieldProps) {
   return (
     <div style={{ marginTop: '16px' }}>
-      <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>
+      <label
+        style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}
+      >
         Wedding Date *
       </label>
       <Field name="weddingDate">
@@ -19,7 +25,10 @@ export default function WeddingDateField({ errors, touched, setFieldValue }: Wed
             style={{ width: '100%' }}
             placeholder="Select wedding date"
             onChange={(date) => {
-              setFieldValue('weddingDate', date ? date.format('YYYY-MM-DD') : '');
+              setFieldValue(
+                'weddingDate',
+                date ? date.format('YYYY-MM-DD') : ''
+              );
             }}
             status={errors.weddingDate && touched.weddingDate ? 'error' : ''}
           />

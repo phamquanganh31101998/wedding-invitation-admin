@@ -57,7 +57,8 @@ export function rateLimiter(req: NextRequest) {
 if (typeof setInterval !== 'undefined') {
   setInterval(() => {
     const now = Date.now();
-    for (const [clientId, data] of requestCounts.entries()) {
+    const entries = Array.from(requestCounts.entries());
+    for (const [clientId, data] of entries) {
       if (now > data.resetTime) {
         requestCounts.delete(clientId);
       }

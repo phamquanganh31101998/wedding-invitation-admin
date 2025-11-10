@@ -36,7 +36,9 @@ export default function ThemeTab({
               label="Primary Color"
               value={tenant.themePrimaryColor}
               isEditing={editingField === 'themePrimaryColor'}
-              editValue={editingValues.themePrimaryColor ?? tenant.themePrimaryColor}
+              editValue={
+                editingValues.themePrimaryColor ?? tenant.themePrimaryColor
+              }
               saving={saving}
               onStartEditing={onStartEditing}
               onCancelEditing={onCancelEditing}
@@ -48,7 +50,9 @@ export default function ThemeTab({
               label="Secondary Color"
               value={tenant.themeSecondaryColor}
               isEditing={editingField === 'themeSecondaryColor'}
-              editValue={editingValues.themeSecondaryColor ?? tenant.themeSecondaryColor}
+              editValue={
+                editingValues.themeSecondaryColor ?? tenant.themeSecondaryColor
+              }
               saving={saving}
               onStartEditing={onStartEditing}
               onCancelEditing={onCancelEditing}

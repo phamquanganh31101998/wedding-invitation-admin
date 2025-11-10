@@ -13,6 +13,7 @@ import {
   generateGuestExport,
   generateExportFilename,
 } from '@/features/guests/services/guest-export.service';
+import { checkTenantIdParam } from '@/lib/utils/api-helpers';
 
 /**
  * GET /api/tenants/[id]/guests/export - Export guests to Excel file
@@ -23,20 +24,8 @@ export async function GET(
 ) {
   try {
     const resolvedParams = await params;
-    const tenantId = parseInt(resolvedParams.id);
-
-    if (isNaN(tenantId)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: TenantErrorCode.VALIDATION_ERROR,
-            message: 'Invalid tenant ID',
-          },
-        },
-        { status: 400 }
-      );
-    }
+    const { tenantId, error } = checkTenantIdParam(resolvedParams.id);
+    if (error) return error;
 
     const { searchParams } = new URL(request.url);
 

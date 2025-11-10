@@ -2,9 +2,26 @@
 
 import { useState } from 'react';
 import { List, Button, Popconfirm } from 'antd';
-import { PlayCircleOutlined, PauseCircleOutlined, DeleteOutlined, DragOutlined } from '@ant-design/icons';
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import {
+  PlayCircleOutlined,
+  PauseCircleOutlined,
+  DeleteOutlined,
+  DragOutlined,
+} from '@ant-design/icons';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { IFile } from '@/types/file';
@@ -24,14 +41,15 @@ interface SortableAudioItemProps {
   onDelete: (file: IFile) => void;
 }
 
-const SortableAudioItem = ({ file, isPlaying, onPlay, onPause, onDelete }: SortableAudioItemProps) => {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-  } = useSortable({ id: file.id });
+const SortableAudioItem = ({
+  file,
+  isPlaying,
+  onPlay,
+  onPause,
+  onDelete,
+}: SortableAudioItemProps) => {
+  const { attributes, listeners, setNodeRef, transform, transition } =
+    useSortable({ id: file.id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -46,7 +64,7 @@ const SortableAudioItem = ({ file, isPlaying, onPlay, onPause, onDelete }: Sorta
             key="play"
             type="text"
             icon={isPlaying ? <PauseCircleOutlined /> : <PlayCircleOutlined />}
-            onClick={() => isPlaying ? onPause() : onPlay(file)}
+            onClick={() => (isPlaying ? onPause() : onPlay(file))}
           />,
           <Popconfirm
             key="delete"
@@ -63,7 +81,7 @@ const SortableAudioItem = ({ file, isPlaying, onPlay, onPause, onDelete }: Sorta
             icon={<DragOutlined />}
             {...listeners}
             style={{ cursor: 'grab' }}
-          />
+          />,
         ]}
       >
         <List.Item.Meta
@@ -75,8 +93,15 @@ const SortableAudioItem = ({ file, isPlaying, onPlay, onPause, onDelete }: Sorta
   );
 };
 
-export default function AudioList({ audioFiles, loading, onDelete, onReorder }: AudioListProps) {
-  const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
+export default function AudioList({
+  audioFiles,
+  loading,
+  onDelete,
+  onReorder,
+}: AudioListProps) {
+  const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(
+    null
+  );
   const [playingFileId, setPlayingFileId] = useState<number | null>(null);
 
   const sensors = useSensors(
@@ -114,8 +139,12 @@ export default function AudioList({ audioFiles, loading, onDelete, onReorder }: 
     const { active, over } = event;
 
     if (active.id !== over.id) {
-      const oldIndex = audioFiles.findIndex((file: IFile) => file.id === active.id);
-      const newIndex = audioFiles.findIndex((file: IFile) => file.id === over.id);
+      const oldIndex = audioFiles.findIndex(
+        (file: IFile) => file.id === active.id
+      );
+      const newIndex = audioFiles.findIndex(
+        (file: IFile) => file.id === over.id
+      );
 
       const newAudioFiles = arrayMove(audioFiles, oldIndex, newIndex);
       onReorder(newAudioFiles);
@@ -128,7 +157,10 @@ export default function AudioList({ audioFiles, loading, onDelete, onReorder }: 
       collisionDetection={closestCenter}
       onDragEnd={handleDragEnd}
     >
-      <SortableContext items={audioFiles.map((f: IFile) => f.id)} strategy={verticalListSortingStrategy}>
+      <SortableContext
+        items={audioFiles.map((f: IFile) => f.id)}
+        strategy={verticalListSortingStrategy}
+      >
         <List
           loading={loading}
           dataSource={audioFiles}

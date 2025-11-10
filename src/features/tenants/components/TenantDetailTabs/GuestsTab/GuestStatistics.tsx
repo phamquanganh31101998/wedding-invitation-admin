@@ -19,7 +19,8 @@ export default function GuestStatistics({ tenantId }: GuestStatisticsProps) {
   const { stats, isLoading, error, refetch } = useGetGuestStats(tenantId);
 
   // Check if stats are being refetched (for loading indicator overlay)
-  const isFetchingStats = useIsFetching({ queryKey: guestKeys.stats(tenantId) }) > 0;
+  const isFetchingStats =
+    useIsFetching({ queryKey: guestKeys.stats(tenantId) }) > 0;
 
   // Handle loading state with skeleton
   if (isLoading) {
@@ -28,25 +29,41 @@ export default function GuestStatistics({ tenantId }: GuestStatisticsProps) {
         <Row gutter={[16, 16]}>
           <Col xs={12} sm={12} md={6}>
             <div style={{ padding: '8px 0' }}>
-              <Skeleton.Input active size="small" style={{ width: 100, marginBottom: 8 }} />
+              <Skeleton.Input
+                active
+                size="small"
+                style={{ width: 100, marginBottom: 8 }}
+              />
               <Skeleton.Input active size="large" style={{ width: 80 }} />
             </div>
           </Col>
           <Col xs={12} sm={12} md={6}>
             <div style={{ padding: '8px 0' }}>
-              <Skeleton.Input active size="small" style={{ width: 100, marginBottom: 8 }} />
+              <Skeleton.Input
+                active
+                size="small"
+                style={{ width: 100, marginBottom: 8 }}
+              />
               <Skeleton.Input active size="large" style={{ width: 80 }} />
             </div>
           </Col>
           <Col xs={12} sm={12} md={6}>
             <div style={{ padding: '8px 0' }}>
-              <Skeleton.Input active size="small" style={{ width: 100, marginBottom: 8 }} />
+              <Skeleton.Input
+                active
+                size="small"
+                style={{ width: 100, marginBottom: 8 }}
+              />
               <Skeleton.Input active size="large" style={{ width: 80 }} />
             </div>
           </Col>
           <Col xs={12} sm={12} md={6}>
             <div style={{ padding: '8px 0' }}>
-              <Skeleton.Input active size="small" style={{ width: 100, marginBottom: 8 }} />
+              <Skeleton.Input
+                active
+                size="small"
+                style={{ width: 100, marginBottom: 8 }}
+              />
               <Skeleton.Input active size="large" style={{ width: 80 }} />
             </div>
           </Col>
@@ -90,7 +107,10 @@ export default function GuestStatistics({ tenantId }: GuestStatisticsProps) {
 
   return (
     <Card>
-      <Spin spinning={isFetchingStats && !isLoading} tip="Updating statistics...">
+      <Spin
+        spinning={isFetchingStats && !isLoading}
+        tip="Updating statistics..."
+      >
         <Row gutter={[16, 16]}>
           <Col xs={12} sm={12} md={6}>
             <Statistic

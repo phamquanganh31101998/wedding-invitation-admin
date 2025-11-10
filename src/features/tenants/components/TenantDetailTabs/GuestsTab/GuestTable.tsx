@@ -1,6 +1,15 @@
 'use client';
 
-import { Table, Tag, Button, Space, Tooltip, Empty, Card, Skeleton } from 'antd';
+import {
+  Table,
+  Tag,
+  Button,
+  Space,
+  Tooltip,
+  Empty,
+  Card,
+  Skeleton,
+} from 'antd';
 import { EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import type { ColumnsType } from 'antd/es/table';
@@ -140,7 +149,9 @@ export default function GuestTable({
             <span>{message}</span>
           </Tooltip>
         ) : (
-          <span style={{ color: '#bfbfbf', fontStyle: 'italic' }}>No message</span>
+          <span style={{ color: '#bfbfbf', fontStyle: 'italic' }}>
+            No message
+          </span>
         ),
     },
     {
@@ -208,9 +219,10 @@ export default function GuestTable({
   ];
 
   // Generate skeleton rows when loading
-  const displayData = isLoading && guests.length === 0
-    ? Array.from({ length: limit }, (_, i) => createSkeletonGuest(i + 1))
-    : guests;
+  const displayData =
+    isLoading && guests.length === 0
+      ? Array.from({ length: limit }, (_, i) => createSkeletonGuest(i + 1))
+      : guests;
 
   return (
     <Card>
