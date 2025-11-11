@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import * as XLSX from 'xlsx';
 import {
   SecureGuestRepository,
   GuestCreateRequest,
@@ -59,13 +60,12 @@ export async function POST(
     const securityContext = await getSecurityContext();
     const guestRepository = new SecureGuestRepository(securityContext);
 
-    // Import valid rows
-    let imported = 0;
-    const importErrors: Array<{ row: number; errors: string[] }> = [
-      ...parseResult.errors,
-    ];
+    // Import valid rows and track results
+    const successRows: any[] = [];
+    const failedRows: any[] = [];
 
-    for (const guestRow of parseResult.data) {
+    for (let i = 0; i < parseResult.data.length; i++) {
+      const guestRow = parseResult.data[i];
       try {
         const createData: GuestCreateRequest = {
           tenant_id: tenantId,
@@ -76,23 +76,65 @@ export async function POST(
         };
 
         await guestRepository.create(createData);
-        imported++;
+        successRows.push({
+          name: guestRow.name,
+          relationship: guestRow.relationship,
+          attendance: guestRow.attendance,
+          message: guestRow.message || '',
+        });
       } catch (error: any) {
-        // If a database error occurs during import, we still continue with other rows
         console.error('Error importing guest row:', error);
+        failedRows.push({
+          name: guestRow.name,
+          relationship: guestRow.relationship,
+          attendance: guestRow.attendance,
+          message: guestRow.message || '',
+          error: error.message || 'Unknown error',
+        });
       }
     }
 
-    const failed = parseResult.errors.length;
+    // Add validation errors to failed rows
+    for (const validationError of parseResult.errors) {
+      const errorRow = parseResult.data[validationError.row - 2]; // Adjust for header row
+      if (errorRow) {
+        failedRows.push({
+          name: errorRow.name || '',
+          relationship: errorRow.relationship || '',
+          attendance: errorRow.attendance || '',
+          message: errorRow.message || '',
+          error: validationError.errors.join(', '),
+        });
+      }
+    }
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        imported,
-        failed,
-        errors: importErrors,
+    // Create Excel workbook with two sheets
+    const workbook = XLSX.utils.book_new();
+
+    // Success sheet
+    const successSheet = XLSX.utils.json_to_sheet(successRows);
+    XLSX.utils.book_append_sheet(workbook, successSheet, 'Success');
+
+    // Failed sheet
+    const failedSheet = XLSX.utils.json_to_sheet(failedRows);
+    XLSX.utils.book_append_sheet(workbook, failedSheet, 'Failed');
+
+    // Generate Excel file buffer
+    const excelBuffer = XLSX.write(workbook, {
+      type: 'buffer',
+      bookType: 'xlsx',
+    });
+
+    // Return the Excel file
+    return new NextResponse(excelBuffer, {
+      status: 200,
+      headers: {
+        'Content-Type':
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'Content-Disposition': `attachment; filename="import-result-${Date.now()}.xlsx"`,
+        'X-Import-Success': successRows.length.toString(),
+        'X-Import-Failed': failedRows.length.toString(),
       },
-      message: `Successfully imported ${imported} guest(s). ${failed} row(s) failed validation.`,
     });
   } catch (error: any) {
     console.error('Error importing guests:', error);

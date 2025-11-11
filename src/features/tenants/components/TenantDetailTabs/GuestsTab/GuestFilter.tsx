@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Input, Select, Space, Card, Row, Col } from 'antd';
+import { Input, Select, Space } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 
 const { Search } = Input;
@@ -49,35 +49,29 @@ export default function GuestFilter({
   };
 
   return (
-    <Card>
-      <Row gutter={[16, 16]}>
-        <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-          <Space direction="horizontal" style={{ width: '100%' }} wrap>
-            <Search
-              placeholder="Search by name or relationship"
-              allowClear
-              value={searchInput}
-              onSearch={handleSearchSubmit}
-              onChange={(e) => handleSearchInputChange(e.target.value)}
-              style={{ minWidth: 200, maxWidth: 300, width: '100%' }}
-              prefix={<SearchOutlined />}
-              enterButton
-            />
-            <Select
-              placeholder="Filter by attendance"
-              allowClear
-              style={{ minWidth: 160, width: 180 }}
-              onChange={handleAttendanceFilterChange}
-              value={attendanceFilter}
-              options={[
-                { label: 'Attending (Yes)', value: 'yes' },
-                { label: 'Not Attending (No)', value: 'no' },
-                { label: 'Maybe', value: 'maybe' },
-              ]}
-            />
-          </Space>
-        </Col>
-      </Row>
-    </Card>
+    <Space direction="horizontal" style={{ width: '100%' }} wrap size={[8, 8]}>
+      <Search
+        placeholder="Search by name or relationship"
+        allowClear
+        value={searchInput}
+        onSearch={handleSearchSubmit}
+        onChange={(e) => handleSearchInputChange(e.target.value)}
+        style={{ minWidth: 200, maxWidth: 300 }}
+        prefix={<SearchOutlined />}
+        enterButton
+      />
+      <Select
+        placeholder="Filter by attendance"
+        allowClear
+        style={{ minWidth: 160, width: 180 }}
+        onChange={handleAttendanceFilterChange}
+        value={attendanceFilter}
+        options={[
+          { label: 'Attending (Yes)', value: 'yes' },
+          { label: 'Not Attending (No)', value: 'no' },
+          { label: 'Maybe', value: 'maybe' },
+        ]}
+      />
+    </Space>
   );
 }

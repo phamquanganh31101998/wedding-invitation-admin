@@ -121,7 +121,7 @@ export const getGuestStats = async (tenantId: number): Promise<IGuestStats> => {
 export const importGuests = async (
   tenantId: number,
   file: File
-): Promise<IGuestImportResult> => {
+): Promise<IGuestImportResult & { resultFile: Blob }> => {
   const formData = new FormData();
   formData.append('file', file);
 
@@ -130,13 +130,30 @@ export const importGuests = async (
     body: formData,
   });
 
-  const result = await response.json();
-
-  if (!result.success) {
-    throw new Error(result.error?.message || 'Failed to import guests');
+  if (!response.ok) {
+    // Try to parse error as JSON
+    try {
+      const errorResult = await response.json();
+      throw new Error(errorResult.error?.message || 'Failed to import guests');
+    } catch {
+      throw new Error('Failed to import guests');
+    }
   }
 
-  return result.data;
+  // Extract import stats from headers
+  const imported = parseInt(response.headers.get('X-Import-Success') || '0');
+  const failed = parseInt(response.headers.get('X-Import-Failed') || '0');
+
+  // Get the Excel file blob
+  const resultFile = await response.blob();
+
+  return {
+    success: true,
+    imported,
+    failed,
+    errors: [],
+    resultFile,
+  };
 };
 
 export const exportGuests = async (

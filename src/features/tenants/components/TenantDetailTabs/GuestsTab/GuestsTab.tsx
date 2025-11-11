@@ -24,7 +24,7 @@ import {
 import GuestStatistics from '@/features/guests/components/GuestStatistics';
 import GuestTable from '@/features/guests/components/GuestTable';
 import GuestFormModal from '@/features/guests/components/GuestFormModal';
-import GuestImportModal from '@/features/guests/components/GuestImportModal';
+import GuestImportModal from '@/features/guests/components/GuestImportModal/GuestImportModal';
 import ConfirmDeleteGuest from '@/features/guests/components/ConfirmDeleteGuest';
 import GuestFilter from './GuestFilter';
 import styles from './GuestsTab.module.css';
@@ -152,41 +152,55 @@ export default function GuestsTab({ tenantId }: GuestsTabProps) {
       {/* Guest Statistics */}
       <GuestStatistics tenantId={tenantId} />
 
-      {/* Filters */}
-      <div style={{ marginTop: 24, marginBottom: 16 }}>
-        <GuestFilter
-          onSearchChange={handleSearchChange}
-          onAttendanceChange={handleAttendanceChange}
-        />
-      </div>
-
-      {/* Actions */}
-      <Card style={{ marginBottom: 16 }}>
-        <Space wrap size={[8, 8]}>
-          <Tooltip title="Add a new guest to the list">
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={handleAddGuest}
-            >
-              Add Guest
-            </Button>
-          </Tooltip>
-          <Tooltip title="Import guests from CSV or Excel file">
-            <Button icon={<ImportOutlined />} onClick={handleImport}>
-              Import
-            </Button>
-          </Tooltip>
-          <Tooltip title="Export guest list to Excel file">
-            <Button
-              icon={<ExportOutlined />}
-              onClick={handleExport}
-              loading={isExporting}
-              disabled={isExporting}
-            >
-              Export
-            </Button>
-          </Tooltip>
+      {/* Filters and Actions */}
+      <Card style={{ marginTop: 24, marginBottom: 16 }}>
+        <Space
+          direction="vertical"
+          size={16}
+          style={{ width: '100%', display: 'flex' }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+              gap: 16,
+              flexWrap: 'wrap',
+            }}
+          >
+            <div style={{ flex: 1, minWidth: 300 }}>
+              <GuestFilter
+                onSearchChange={handleSearchChange}
+                onAttendanceChange={handleAttendanceChange}
+              />
+            </div>
+            <Space wrap size={[8, 8]}>
+              <Tooltip title="Add a new guest to the list">
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  onClick={handleAddGuest}
+                >
+                  Add Guest
+                </Button>
+              </Tooltip>
+              <Tooltip title="Import guests from CSV or Excel file">
+                <Button icon={<ImportOutlined />} onClick={handleImport}>
+                  Import
+                </Button>
+              </Tooltip>
+              <Tooltip title="Export guest list to Excel file">
+                <Button
+                  icon={<ExportOutlined />}
+                  onClick={handleExport}
+                  loading={isExporting}
+                  disabled={isExporting}
+                >
+                  Export
+                </Button>
+              </Tooltip>
+            </Space>
+          </div>
         </Space>
       </Card>
 
