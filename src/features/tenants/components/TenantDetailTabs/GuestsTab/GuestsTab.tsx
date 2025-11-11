@@ -1,16 +1,10 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import {
   Button,
   Space,
-  Input,
-  Select,
-  Row,
-  Col,
   Card,
-  Modal,
-  message,
   Alert,
   Tooltip,
 } from 'antd';
@@ -18,23 +12,22 @@ import {
   PlusOutlined,
   ImportOutlined,
   ExportOutlined,
-  SearchOutlined,
-  ExclamationCircleOutlined,
 } from '@ant-design/icons';
 import { useModal } from '@ebay/nice-modal-react';
 import {
   useGetGuestList,
   useExportGuests,
   useDeleteGuest,
+  IGuest,
+  IGuestListParams,
 } from '@/features/guests/services';
-import { IGuest, IGuestListParams } from '@/features/guests/services';
-import GuestStatistics from './GuestStatistics';
-import GuestTable from './GuestTable';
-import GuestFormModal from './GuestFormModal';
-import GuestImportModal from './GuestImportModal';
+import GuestStatistics from '@/features/guests/components/GuestStatistics';
+import GuestTable from '@/features/guests/components/GuestTable';
+import GuestFormModal from '@/features/guests/components/GuestFormModal';
+import GuestImportModal from '@/features/guests/components/GuestImportModal';
+import ConfirmDeleteGuest from '@/features/guests/components/ConfirmDeleteGuest';
+import GuestFilter from './GuestFilter';
 import styles from './GuestsTab.module.css';
-
-const { Search } = Input;
 
 interface GuestsTabProps {
   tenantId: number;
@@ -46,8 +39,7 @@ export default function GuestsTab({ tenantId }: GuestsTabProps) {
   const [limit, setLimit] = useState(10);
 
   // State for filters
-  const [searchInput, setSearchInput] = useState<string>(''); // Local input state
-  const [search, setSearch] = useState<string>(''); // Debounced search value
+  const [search, setSearch] = useState<string>('');
   const [attendanceFilter, setAttendanceFilter] = useState<
     'yes' | 'no' | 'maybe' | undefined
   >(undefined);
@@ -55,16 +47,7 @@ export default function GuestsTab({ tenantId }: GuestsTabProps) {
   // Modals
   const guestFormModal = useModal(GuestFormModal);
   const guestImportModal = useModal(GuestImportModal);
-
-  // Debounce search input (500ms delay)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setSearch(searchInput);
-      setPage(1); // Reset to first page on search
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [searchInput]);
+  const confirmDeleteModal = useModal(ConfirmDeleteGuest);
 
   // Build query params
   const queryParams: IGuestListParams = {
@@ -86,24 +69,19 @@ export default function GuestsTab({ tenantId }: GuestsTabProps) {
   // Delete guest hook
   const { deleteGuest, isDeleting } = useDeleteGuest(tenantId);
 
-  // Handle search input change
+  // Handle filter changes
   const handleSearchChange = useCallback((value: string) => {
-    setSearchInput(value);
-  }, []);
-
-  // Handle search button click (immediate search)
-  const handleSearchSubmit = useCallback((value: string) => {
     setSearch(value);
     setPage(1);
   }, []);
 
-  // Handle attendance filter change
-  const handleAttendanceFilterChange = (
-    value: 'yes' | 'no' | 'maybe' | undefined
-  ) => {
-    setAttendanceFilter(value);
-    setPage(1); // Reset to first page on filter change
-  };
+  const handleAttendanceChange = useCallback(
+    (value: 'yes' | 'no' | 'maybe' | undefined) => {
+      setAttendanceFilter(value);
+      setPage(1);
+    },
+    []
+  );
 
   // Handle pagination change
   const handlePageChange = (newPage: number, pageSize: number) => {
@@ -143,33 +121,11 @@ export default function GuestsTab({ tenantId }: GuestsTabProps) {
 
   // Handle delete guest with confirmation
   const handleDeleteGuest = (guest: IGuest) => {
-    Modal.confirm({
-      title: 'Delete Guest',
-      icon: <ExclamationCircleOutlined />,
-      content: (
-        <div>
-          <p>Are you sure you want to delete this guest?</p>
-          <p style={{ marginTop: 8 }}>
-            <strong>Name:</strong> {guest.name}
-            <br />
-            <strong>Relationship:</strong> {guest.relationship}
-          </p>
-          <p style={{ color: '#ff4d4f', marginTop: 8 }}>
-            This action cannot be undone.
-          </p>
-        </div>
-      ),
-      okText: 'Delete',
-      okType: 'danger',
-      cancelText: 'Cancel',
-      onOk: async () => {
-        try {
-          await deleteGuest(guest.id);
-          refetch();
-        } catch (error) {
-          console.error('Delete failed:', error);
-          // Error message is handled in the hook
-        }
+    confirmDeleteModal.show({
+      guest,
+      onConfirm: async () => {
+        await deleteGuest(guest.id);
+        refetch();
       },
     });
   };
@@ -196,77 +152,42 @@ export default function GuestsTab({ tenantId }: GuestsTabProps) {
       {/* Guest Statistics */}
       <GuestStatistics tenantId={tenantId} />
 
-      {/* Actions and Filters */}
-      <Card style={{ marginTop: 24, marginBottom: 16 }}>
-        <Row gutter={[16, 16]} align="middle">
-          <Col xs={24} sm={24} md={24} lg={14} xl={14}>
-            <Space
-              direction="horizontal"
-              style={{ width: '100%' }}
-              wrap
-              size={[8, 8]}
+      {/* Filters */}
+      <div style={{ marginTop: 24, marginBottom: 16 }}>
+        <GuestFilter
+          onSearchChange={handleSearchChange}
+          onAttendanceChange={handleAttendanceChange}
+        />
+      </div>
+
+      {/* Actions */}
+      <Card style={{ marginBottom: 16 }}>
+        <Space wrap size={[8, 8]}>
+          <Tooltip title="Add a new guest to the list">
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={handleAddGuest}
             >
-              <Search
-                placeholder="Search by name or relationship"
-                allowClear
-                value={searchInput}
-                onSearch={handleSearchSubmit}
-                onChange={(e) => handleSearchChange(e.target.value)}
-                style={{ minWidth: 200, maxWidth: 300, width: '100%' }}
-                prefix={<SearchOutlined />}
-                enterButton
-              />
-              <Select
-                placeholder="Filter by attendance"
-                allowClear
-                style={{ minWidth: 160, width: 180 }}
-                onChange={handleAttendanceFilterChange}
-                value={attendanceFilter}
-                options={[
-                  { label: 'Attending (Yes)', value: 'yes' },
-                  { label: 'Not Attending (No)', value: 'no' },
-                  { label: 'Maybe', value: 'maybe' },
-                ]}
-              />
-            </Space>
-          </Col>
-          <Col xs={24} sm={24} md={24} lg={10} xl={10}>
-            <Space
-              direction="horizontal"
-              style={{
-                width: '100%',
-                justifyContent: 'flex-end',
-              }}
-              wrap
-              size={[8, 8]}
+              Add Guest
+            </Button>
+          </Tooltip>
+          <Tooltip title="Import guests from CSV or Excel file">
+            <Button icon={<ImportOutlined />} onClick={handleImport}>
+              Import
+            </Button>
+          </Tooltip>
+          <Tooltip title="Export guest list to Excel file">
+            <Button
+              icon={<ExportOutlined />}
+              onClick={handleExport}
+              loading={isExporting}
+              disabled={isExporting}
             >
-              <Tooltip title="Add a new guest to the list">
-                <Button
-                  type="primary"
-                  icon={<PlusOutlined />}
-                  onClick={handleAddGuest}
-                >
-                  Add Guest
-                </Button>
-              </Tooltip>
-              <Tooltip title="Import guests from CSV or Excel file">
-                <Button icon={<ImportOutlined />} onClick={handleImport}>
-                  Import
-                </Button>
-              </Tooltip>
-              <Tooltip title="Export guest list to Excel file">
-                <Button
-                  icon={<ExportOutlined />}
-                  onClick={handleExport}
-                  loading={isExporting}
-                  disabled={isExporting}
-                >
-                  Export
-                </Button>
-              </Tooltip>
-            </Space>
-          </Col>
-        </Row>
+              Export
+            </Button>
+          </Tooltip>
+        </Space>
       </Card>
 
       {/* Guest Table */}

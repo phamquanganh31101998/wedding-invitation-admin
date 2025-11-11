@@ -370,8 +370,8 @@ export class SecureGuestRepository {
       if (sanitizedFilters.search) {
         const searchTerm = `%${sanitizedFilters.search}%`;
         whereConditions = sql`${whereConditions} AND (
-          g.name ILIKE ${searchTerm} OR 
-          g.relationship ILIKE ${searchTerm}
+          unaccent(g.name) ILIKE unaccent(${searchTerm}) OR 
+          unaccent(g.relationship) ILIKE unaccent(${searchTerm})
         )`;
       }
 
@@ -499,7 +499,7 @@ export class SecureGuestRepository {
           FROM guests g
           JOIN tenants t ON g.tenant_id = t.id
           WHERE g.tenant_id = ${tenantId}
-            AND (g.name ILIKE ${`%${query}%`} OR g.relationship ILIKE ${`%${query}%`})
+            AND (unaccent(g.name) ILIKE unaccent(${`%${query}%`}) OR unaccent(g.relationship) ILIKE unaccent(${`%${query}%`}))
           ORDER BY g.created_at DESC
           LIMIT ${limit}
         `;
@@ -508,7 +508,7 @@ export class SecureGuestRepository {
           SELECT g.*, t.bride_name, t.groom_name, t.wedding_date
           FROM guests g
           JOIN tenants t ON g.tenant_id = t.id
-          WHERE g.name ILIKE ${`%${query}%`} OR g.relationship ILIKE ${`%${query}%`}
+          WHERE unaccent(g.name) ILIKE unaccent(${`%${query}%`}) OR unaccent(g.relationship) ILIKE unaccent(${`%${query}%`})
           ORDER BY g.created_at DESC
           LIMIT ${limit}
         `;

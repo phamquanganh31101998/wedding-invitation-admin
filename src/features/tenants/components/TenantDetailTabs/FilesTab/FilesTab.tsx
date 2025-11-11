@@ -2,8 +2,8 @@
 
 import { Divider } from 'antd';
 import { TenantUI } from '@/types/tenant';
-import AudioListSection from './AudioListSection';
-import ImageListSection from './ImageListSection';
+import AudioListSection from '@/features/files/components/AudioListSection';
+import ImageListSection from '@/features/files/components/ImageListSection';
 
 interface FilesTabProps {
   tenant: TenantUI;

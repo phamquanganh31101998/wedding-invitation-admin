@@ -213,7 +213,7 @@ export default NiceModal.create(
               style={{ marginBottom: 20 }}
             />
 
-            <Flex align='start' gap={8}>
+            <Flex align="start" gap={8}>
               <Upload
                 fileList={fileList}
                 onChange={handleFileChange}
