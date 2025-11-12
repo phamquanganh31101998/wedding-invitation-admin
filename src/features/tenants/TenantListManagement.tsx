@@ -1,9 +1,5 @@
 import { useState } from 'react';
-import {
-  Typography,
-  Button,
-  Card,
-} from 'antd';
+import { Typography, Button, Card } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useModal } from '@ebay/nice-modal-react';
 import DashboardBreadcrumb from '@/components/common/DashboardBreadcrumb';
@@ -50,28 +46,28 @@ export default function TenantListManagement() {
 
   // Handle search
   const handleSearch = (value: string) => {
-    setParams(prev => ({
+    setParams((prev) => ({
       ...prev,
       searchQuery: value,
-      currentPage: 1
+      currentPage: 1,
     }));
   };
 
   // Handle status filter change
   const handleStatusFilterChange = (value: boolean | undefined) => {
-    setParams(prev => ({
+    setParams((prev) => ({
       ...prev,
       statusFilter: value,
-      currentPage: 1
+      currentPage: 1,
     }));
   };
 
   // Handle pagination change
   const handleTableChange = (page: number, pageSize: number) => {
-    setParams(prev => ({
+    setParams((prev) => ({
       ...prev,
       currentPage: page,
-      pageSize: pageSize
+      pageSize: pageSize,
     }));
   };
 
@@ -82,12 +78,14 @@ export default function TenantListManagement() {
         <DashboardBreadcrumb />
 
         {/* Page Header */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: 24
-        }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: 24,
+          }}
+        >
           <Title level={2} style={{ margin: 0 }}>
             Tenant Management
           </Title>
@@ -118,8 +116,6 @@ export default function TenantListManagement() {
           />
         </Card>
       </div>
-
-
     </div>
   );
 }

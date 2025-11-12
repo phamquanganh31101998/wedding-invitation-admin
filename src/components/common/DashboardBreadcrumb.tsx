@@ -14,7 +14,9 @@ interface DashboardBreadcrumbProps {
   customItems?: BreadcrumbProps['items'];
 }
 
-export default function DashboardBreadcrumb({ customItems }: DashboardBreadcrumbProps) {
+export default function DashboardBreadcrumb({
+  customItems,
+}: DashboardBreadcrumbProps) {
   const pathname = usePathname();
 
   // Generate breadcrumb items based on current path
@@ -71,10 +73,5 @@ export default function DashboardBreadcrumb({ customItems }: DashboardBreadcrumb
 
   const items = customItems || generateBreadcrumbItems();
 
-  return (
-    <Breadcrumb
-      style={{ marginBottom: 16 }}
-      items={items}
-    />
-  );
+  return <Breadcrumb style={{ marginBottom: 16 }} items={items} />;
 }

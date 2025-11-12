@@ -49,7 +49,9 @@ export default function EditableField({
           ) : type === 'date' ? (
             <DatePicker
               value={editValue ? dayjs(editValue) : null}
-              onChange={(date) => onUpdateValue(field, date ? date.format('YYYY-MM-DD') : '')}
+              onChange={(date) =>
+                onUpdateValue(field, date ? date.format('YYYY-MM-DD') : '')
+              }
               style={{ width: '100%' }}
               autoFocus
             />
@@ -57,7 +59,9 @@ export default function EditableField({
             <Input
               value={editValue}
               onChange={(e) => onUpdateValue(field, e.target.value)}
-              type={type === 'email' ? 'email' : type === 'phone' ? 'tel' : 'text'}
+              type={
+                type === 'email' ? 'email' : type === 'phone' ? 'tel' : 'text'
+              }
               autoFocus
             />
           )}
@@ -89,9 +93,18 @@ export default function EditableField({
   return (
     <div>
       <Text strong>{label}:</Text>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginTop: 4,
+        }}
+      >
         <Text>
-          {type === 'date' && value ? dayjs(value).format('MMM DD, YYYY') : value || 'Not set'}
+          {type === 'date' && value
+            ? dayjs(value).format('MMM DD, YYYY')
+            : value || 'Not set'}
         </Text>
         <Button
           type="text"

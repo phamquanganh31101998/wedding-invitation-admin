@@ -1,25 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { FileService } from '@/lib/services/file-service';
 import { FileRepository } from '@/lib/repositories/file-repository';
 import { validateFileType } from '@/lib/utils/file';
+import { checkTenantIdParam } from '@/lib/utils/api-helpers';
 
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Check authentication
-    const session = await getServerSession();
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const { id } = await params;
-    const tenantId = parseInt(id);
-    if (isNaN(tenantId)) {
-      return NextResponse.json({ error: 'Invalid tenant ID' }, { status: 400 });
-    }
+    const { tenantId, error } = checkTenantIdParam(id);
+    if (error) return error;
 
     const formData = await request.formData();
     const file = formData.get('file') as File;
@@ -97,17 +89,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Check authentication
-    const session = await getServerSession();
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const { id } = await params;
-    const tenantId = parseInt(id);
-    if (isNaN(tenantId)) {
-      return NextResponse.json({ error: 'Invalid tenant ID' }, { status: 400 });
-    }
+    const { tenantId, error } = checkTenantIdParam(id);
+    if (error) return error;
 
     const { searchParams } = new URL(request.url);
     const fileType = searchParams.get('type');
@@ -139,17 +123,9 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Check authentication
-    const session = await getServerSession();
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const { id } = await params;
-    const tenantId = parseInt(id);
-    if (isNaN(tenantId)) {
-      return NextResponse.json({ error: 'Invalid tenant ID' }, { status: 400 });
-    }
+    const { tenantId, error } = checkTenantIdParam(id);
+    if (error) return error;
 
     const { searchParams } = new URL(request.url);
     const fileId = searchParams.get('fileId');

@@ -11,7 +11,12 @@ interface FilterProps {
   loading: boolean;
 }
 
-export default function Filter({ onSearch, onStatusFilterChange, onRefresh, loading }: FilterProps) {
+export default function Filter({
+  onSearch,
+  onStatusFilterChange,
+  onRefresh,
+  loading,
+}: FilterProps) {
   return (
     <div style={{ marginBottom: 16 }}>
       <Space wrap>
@@ -31,11 +36,7 @@ export default function Filter({ onSearch, onStatusFilterChange, onRefresh, load
           <Option value={true}>Active</Option>
           <Option value={false}>Inactive</Option>
         </Select>
-        <Button
-          icon={<ReloadOutlined />}
-          onClick={onRefresh}
-          loading={loading}
-        >
+        <Button icon={<ReloadOutlined />} onClick={onRefresh} loading={loading}>
           Refresh
         </Button>
       </Space>

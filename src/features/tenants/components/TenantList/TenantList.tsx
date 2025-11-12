@@ -20,7 +20,7 @@ export default function TenantList({
   currentPage,
   pageSize,
   total,
-  onTableChange
+  onTableChange,
 }: TenantListProps) {
   const router = useRouter();
 
@@ -34,9 +34,7 @@ export default function TenantList({
           <div style={{ fontWeight: 'bold' }}>
             {record.brideName} & {record.groomName}
           </div>
-          <div style={{ fontSize: '12px', color: '#666' }}>
-            {record.slug}
-          </div>
+          <div style={{ fontSize: '12px', color: '#666' }}>{record.slug}</div>
         </div>
       ),
     },

@@ -32,7 +32,10 @@ export default function ThemePreview({ tenant }: ThemePreviewProps) {
       <div style={{ marginTop: 16, textAlign: 'center' }}>
         <Button
           type="primary"
-          style={{ backgroundColor: tenant.themePrimaryColor, borderColor: tenant.themePrimaryColor }}
+          style={{
+            backgroundColor: tenant.themePrimaryColor,
+            borderColor: tenant.themePrimaryColor,
+          }}
         >
           Primary Button
         </Button>
@@ -41,7 +44,7 @@ export default function ThemePreview({ tenant }: ThemePreviewProps) {
             marginLeft: 8,
             backgroundColor: tenant.themeSecondaryColor,
             borderColor: tenant.themeSecondaryColor,
-            color: '#000'
+            color: '#000',
           }}
         >
           Secondary Button

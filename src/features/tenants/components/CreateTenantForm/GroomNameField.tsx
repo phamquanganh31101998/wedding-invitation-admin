@@ -6,10 +6,15 @@ interface GroomNameFieldProps {
   touched: any;
 }
 
-export default function GroomNameField({ errors, touched }: GroomNameFieldProps) {
+export default function GroomNameField({
+  errors,
+  touched,
+}: GroomNameFieldProps) {
   return (
     <div>
-      <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>
+      <label
+        style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}
+      >
         Groom Name *
       </label>
       <Field name="groomName">

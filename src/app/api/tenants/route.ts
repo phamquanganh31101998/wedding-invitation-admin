@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { TenantService } from '@/lib/services/tenant-service';
 import {
   TenantCreateRequest,
@@ -20,19 +19,6 @@ const tenantService = new TenantService();
  */
 export async function GET(request: NextRequest) {
   try {
-    // Check authentication
-    const session = await getServerSession();
-    if (!session?.user) {
-      const errorResponse = createSecurityErrorResponse(
-        TenantErrorCode.VALIDATION_ERROR,
-        'Authentication required',
-        401
-      );
-      return NextResponse.json(errorResponse, {
-        status: errorResponse.statusCode,
-      });
-    }
-
     const { searchParams } = new URL(request.url);
 
     // Parse filters (support both camelCase and snake_case for backward compatibility)
@@ -99,19 +85,6 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    // Check authentication
-    const session = await getServerSession();
-    if (!session?.user) {
-      const errorResponse = createSecurityErrorResponse(
-        TenantErrorCode.VALIDATION_ERROR,
-        'Authentication required',
-        401
-      );
-      return NextResponse.json(errorResponse, {
-        status: errorResponse.statusCode,
-      });
-    }
-
     const body = await request.json();
 
     // Convert camelCase to snake_case for database

@@ -114,13 +114,17 @@ export default function OverviewTab({
             <div>
               <Text strong>Created:</Text>
               <div style={{ marginTop: 4 }}>
-                <Text>{dayjs(tenant.createdAt).format('MMM DD, YYYY HH:mm')}</Text>
+                <Text>
+                  {dayjs(tenant.createdAt).format('MMM DD, YYYY HH:mm')}
+                </Text>
               </div>
             </div>
             <div>
               <Text strong>Last Updated:</Text>
               <div style={{ marginTop: 4 }}>
-                <Text>{dayjs(tenant.updatedAt).format('MMM DD, YYYY HH:mm')}</Text>
+                <Text>
+                  {dayjs(tenant.updatedAt).format('MMM DD, YYYY HH:mm')}
+                </Text>
               </div>
             </div>
           </Space>

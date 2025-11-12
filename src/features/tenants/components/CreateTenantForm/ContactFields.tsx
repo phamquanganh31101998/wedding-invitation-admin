@@ -8,9 +8,18 @@ interface ContactFieldsProps {
 
 export default function ContactFields({ errors, touched }: ContactFieldsProps) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '16px' }}>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '16px',
+        marginTop: '16px',
+      }}
+    >
       <div>
-        <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>
+        <label
+          style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}
+        >
           Email
         </label>
         <Field name="email">
@@ -30,7 +39,9 @@ export default function ContactFields({ errors, touched }: ContactFieldsProps) {
       </div>
 
       <div>
-        <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>
+        <label
+          style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}
+        >
           Phone
         </label>
         <Field name="phone">

@@ -6,11 +6,23 @@ interface ThemeColorFieldsProps {
   touched: any;
 }
 
-export default function ThemeColorFields({ errors, touched }: ThemeColorFieldsProps) {
+export default function ThemeColorFields({
+  errors,
+  touched,
+}: ThemeColorFieldsProps) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '16px' }}>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '16px',
+        marginTop: '16px',
+      }}
+    >
       <div>
-        <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>
+        <label
+          style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}
+        >
           Primary Color
         </label>
         <Field name="themePrimaryColor">
@@ -19,7 +31,11 @@ export default function ThemeColorFields({ errors, touched }: ThemeColorFieldsPr
               {...field}
               type="color"
               style={{ height: '40px' }}
-              status={errors.themePrimaryColor && touched.themePrimaryColor ? 'error' : ''}
+              status={
+                errors.themePrimaryColor && touched.themePrimaryColor
+                  ? 'error'
+                  : ''
+              }
             />
           )}
         </Field>
@@ -31,7 +47,9 @@ export default function ThemeColorFields({ errors, touched }: ThemeColorFieldsPr
       </div>
 
       <div>
-        <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>
+        <label
+          style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}
+        >
           Secondary Color
         </label>
         <Field name="themeSecondaryColor">
@@ -40,7 +58,11 @@ export default function ThemeColorFields({ errors, touched }: ThemeColorFieldsPr
               {...field}
               type="color"
               style={{ height: '40px' }}
-              status={errors.themeSecondaryColor && touched.themeSecondaryColor ? 'error' : ''}
+              status={
+                errors.themeSecondaryColor && touched.themeSecondaryColor
+                  ? 'error'
+                  : ''
+              }
             />
           )}
         </Field>

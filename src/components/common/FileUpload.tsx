@@ -74,7 +74,11 @@ export const FileUpload = ({
       beforeUpload={beforeUpload}
       disabled={disabled || isUploading}
     >
-      <Button icon={<UploadOutlined />} loading={isUploading} disabled={disabled}>
+      <Button
+        icon={<UploadOutlined />}
+        loading={isUploading}
+        disabled={disabled}
+      >
         {isUploading ? 'Uploading...' : 'Upload File'}
       </Button>
     </Upload>

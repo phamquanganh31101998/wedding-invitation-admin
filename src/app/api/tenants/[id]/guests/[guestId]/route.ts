@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import {
   SecureGuestRepository,
   GuestUpdateRequest,
@@ -9,6 +8,7 @@ import {
   getSecurityContext,
   createSecurityErrorResponse,
 } from '@/lib/security/tenant-security';
+import { checkTenantAndGuestIdParams } from '@/lib/utils/api-helpers';
 
 /**
  * GET /api/tenants/[id]/guests/[guestId] - Get guest by ID with tenant isolation
@@ -18,35 +18,12 @@ export async function GET(
   { params }: { params: Promise<{ id: string; guestId: string }> }
 ) {
   try {
-    // Check authentication
-    const session = await getServerSession();
-    if (!session?.user) {
-      const errorResponse = createSecurityErrorResponse(
-        TenantErrorCode.UNAUTHORIZED,
-        'Authentication required',
-        401
-      );
-      return NextResponse.json(errorResponse, {
-        status: errorResponse.statusCode,
-      });
-    }
-
     const resolvedParams = await params;
-    const tenantId = parseInt(resolvedParams.id);
-    const guestId = parseInt(resolvedParams.guestId);
-
-    if (isNaN(tenantId) || isNaN(guestId)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: TenantErrorCode.VALIDATION_ERROR,
-            message: 'Invalid tenant ID or guest ID',
-          },
-        },
-        { status: 400 }
-      );
-    }
+    const { tenantId, guestId, error } = checkTenantAndGuestIdParams(
+      resolvedParams.id,
+      resolvedParams.guestId
+    );
+    if (error) return error;
 
     // Get security context and create secure repository
     const securityContext = await getSecurityContext();
@@ -106,35 +83,12 @@ export async function PUT(
   { params }: { params: Promise<{ id: string; guestId: string }> }
 ) {
   try {
-    // Check authentication
-    const session = await getServerSession();
-    if (!session?.user) {
-      const errorResponse = createSecurityErrorResponse(
-        TenantErrorCode.UNAUTHORIZED,
-        'Authentication required',
-        401
-      );
-      return NextResponse.json(errorResponse, {
-        status: errorResponse.statusCode,
-      });
-    }
-
     const resolvedParams = await params;
-    const tenantId = parseInt(resolvedParams.id);
-    const guestId = parseInt(resolvedParams.guestId);
-
-    if (isNaN(tenantId) || isNaN(guestId)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: TenantErrorCode.VALIDATION_ERROR,
-            message: 'Invalid tenant ID or guest ID',
-          },
-        },
-        { status: 400 }
-      );
-    }
+    const { tenantId, guestId, error } = checkTenantAndGuestIdParams(
+      resolvedParams.id,
+      resolvedParams.guestId
+    );
+    if (error) return error;
 
     const body = await request.json();
 
@@ -217,35 +171,12 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string; guestId: string }> }
 ) {
   try {
-    // Check authentication
-    const session = await getServerSession();
-    if (!session?.user) {
-      const errorResponse = createSecurityErrorResponse(
-        TenantErrorCode.UNAUTHORIZED,
-        'Authentication required',
-        401
-      );
-      return NextResponse.json(errorResponse, {
-        status: errorResponse.statusCode,
-      });
-    }
-
     const resolvedParams = await params;
-    const tenantId = parseInt(resolvedParams.id);
-    const guestId = parseInt(resolvedParams.guestId);
-
-    if (isNaN(tenantId) || isNaN(guestId)) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: {
-            code: TenantErrorCode.VALIDATION_ERROR,
-            message: 'Invalid tenant ID or guest ID',
-          },
-        },
-        { status: 400 }
-      );
-    }
+    const { tenantId, guestId, error } = checkTenantAndGuestIdParams(
+      resolvedParams.id,
+      resolvedParams.guestId
+    );
+    if (error) return error;
 
     // Get security context and create secure repository
     const securityContext = await getSecurityContext();

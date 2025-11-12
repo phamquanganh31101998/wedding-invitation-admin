@@ -15,8 +15,10 @@ interface CreateTenantFormProps {
   onCancel: () => void;
 }
 
-export default function CreateTenantForm({ onSuccess, onCancel }: CreateTenantFormProps) {
-
+export default function CreateTenantForm({
+  onSuccess,
+  onCancel,
+}: CreateTenantFormProps) {
   // Create tenant
   const createTenant = async (values: TenantCreateRequestUI) => {
     try {
@@ -59,15 +61,15 @@ export default function CreateTenantForm({ onSuccess, onCancel }: CreateTenantFo
     >
       {({ values, errors, touched, setFieldValue, isSubmitting }) => (
         <Form>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-            <BrideNameField
-              errors={errors}
-              touched={touched}
-            />
-            <GroomNameField
-              errors={errors}
-              touched={touched}
-            />
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '16px',
+            }}
+          >
+            <BrideNameField errors={errors} touched={touched} />
+            <GroomNameField errors={errors} touched={touched} />
           </div>
 
           <SlugField
@@ -92,14 +94,8 @@ export default function CreateTenantForm({ onSuccess, onCancel }: CreateTenantFo
           {/* Form Actions */}
           <div style={{ marginTop: '24px', textAlign: 'right' }}>
             <Space>
-              <Button onClick={onCancel}>
-                Cancel
-              </Button>
-              <Button
-                type="primary"
-                htmlType="submit"
-                loading={isSubmitting}
-              >
+              <Button onClick={onCancel}>Cancel</Button>
+              <Button type="primary" htmlType="submit" loading={isSubmitting}>
                 Create Tenant
               </Button>
             </Space>

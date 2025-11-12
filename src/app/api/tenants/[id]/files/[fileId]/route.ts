@@ -1,34 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
 import { FileRepository } from '@/lib/repositories/file-repository';
+import { checkTenantAndFileIdParams } from '@/lib/utils/api-helpers';
 
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string; fileId: string }> }
 ) {
   try {
-    // Check authentication
-    const session = await getServerSession();
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const { id, fileId } = await params;
-    const tenantId = parseInt(id);
-    const fileIdNum = parseInt(fileId);
-
-    if (isNaN(tenantId) || isNaN(fileIdNum)) {
-      return NextResponse.json(
-        { error: 'Invalid tenant ID or file ID' },
-        { status: 400 }
-      );
-    }
+    const { id, fileId: fileIdStr } = await params;
+    const { fileId, error } = checkTenantAndFileIdParams(id, fileIdStr);
+    if (error) return error;
 
     const body = await request.json();
     const { name, displayOrder } = body;
 
     // Update file metadata
-    await FileRepository.updateFileMetadata(fileIdNum, name, displayOrder);
+    await FileRepository.updateFileMetadata(fileId, name, displayOrder);
 
     return NextResponse.json({
       success: true,

@@ -11,9 +11,12 @@ const { Title, Text } = Typography;
 const { Option } = Select;
 
 export default function AiChatManagement() {
-  const [selectedTenantId, setSelectedTenantId] = useState<number | undefined>();
+  const [selectedTenantId, setSelectedTenantId] = useState<
+    number | undefined
+  >();
 
-  const { messages, isLoading, sendMessage, clearChat } = useChat(selectedTenantId);
+  const { messages, isLoading, sendMessage, clearChat } =
+    useChat(selectedTenantId);
 
   // Use tenant hooks to get tenant list
   const { tenantList: tenants, isLoading: loadingTenants } = useGetTenantList({
@@ -52,7 +55,7 @@ export default function AiChatManagement() {
               value={selectedTenantId}
               onChange={handleTenantChange}
             >
-              {tenants.map(tenant => (
+              {tenants.map((tenant) => (
                 <Option key={tenant.id} value={tenant.id}>
                   {tenant.brideName} & {tenant.groomName} - {tenant.venueName}
                 </Option>
@@ -71,7 +74,6 @@ export default function AiChatManagement() {
             </Button>
           )}
         </Flex>
-
 
         <ChatWindow messages={messages} isLoading={isLoading} />
 

@@ -1,7 +1,11 @@
 'use client';
 
 import { Alert, Typography, Space } from 'antd';
-import { LoadingOutlined, CheckCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import {
+  LoadingOutlined,
+  CheckCircleOutlined,
+  ExclamationCircleOutlined,
+} from '@ant-design/icons';
 
 const { Text } = Typography;
 
@@ -14,7 +18,7 @@ interface FunctionCallIndicatorProps {
 export default function FunctionCallIndicator({
   isLoading,
   functionName,
-  error
+  error,
 }: FunctionCallIndicatorProps) {
   if (!isLoading && !functionName) return null;
 

@@ -10,9 +10,22 @@ export default function VenueFields({ errors, touched }: VenueFieldsProps) {
   return (
     <>
       {/* Venue Information */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginTop: '16px' }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '16px',
+          marginTop: '16px',
+        }}
+      >
         <div>
-          <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>
+          <label
+            style={{
+              display: 'block',
+              marginBottom: '4px',
+              fontWeight: 'bold',
+            }}
+          >
             Venue Name *
           </label>
           <Field name="venueName">
@@ -25,14 +38,22 @@ export default function VenueFields({ errors, touched }: VenueFieldsProps) {
             )}
           </Field>
           {errors.venueName && touched.venueName && (
-            <div style={{ color: '#ff4d4f', fontSize: '12px', marginTop: '4px' }}>
+            <div
+              style={{ color: '#ff4d4f', fontSize: '12px', marginTop: '4px' }}
+            >
               {errors.venueName}
             </div>
           )}
         </div>
 
         <div>
-          <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>
+          <label
+            style={{
+              display: 'block',
+              marginBottom: '4px',
+              fontWeight: 'bold',
+            }}
+          >
             Venue Map Link
           </label>
           <Field name="venueMapLink">
@@ -40,12 +61,16 @@ export default function VenueFields({ errors, touched }: VenueFieldsProps) {
               <Input
                 {...field}
                 placeholder="https://maps.google.com/..."
-                status={errors.venueMapLink && touched.venueMapLink ? 'error' : ''}
+                status={
+                  errors.venueMapLink && touched.venueMapLink ? 'error' : ''
+                }
               />
             )}
           </Field>
           {errors.venueMapLink && touched.venueMapLink && (
-            <div style={{ color: '#ff4d4f', fontSize: '12px', marginTop: '4px' }}>
+            <div
+              style={{ color: '#ff4d4f', fontSize: '12px', marginTop: '4px' }}
+            >
               {errors.venueMapLink}
             </div>
           )}
@@ -54,7 +79,9 @@ export default function VenueFields({ errors, touched }: VenueFieldsProps) {
 
       {/* Venue Address */}
       <div style={{ marginTop: '16px' }}>
-        <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>
+        <label
+          style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}
+        >
           Venue Address *
         </label>
         <Field name="venueAddress">
@@ -63,7 +90,9 @@ export default function VenueFields({ errors, touched }: VenueFieldsProps) {
               {...field}
               placeholder="Enter complete venue address"
               rows={2}
-              status={errors.venueAddress && touched.venueAddress ? 'error' : ''}
+              status={
+                errors.venueAddress && touched.venueAddress ? 'error' : ''
+              }
             />
           )}
         </Field>
