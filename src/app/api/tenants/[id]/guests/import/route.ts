@@ -60,37 +60,73 @@ export async function POST(
     const securityContext = await getSecurityContext();
     const guestRepository = new SecureGuestRepository(securityContext);
 
-    // Import valid rows and track results
+    // Import valid rows and track results using hybrid approach
     const successRows: any[] = [];
     const failedRows: any[] = [];
+    const CHUNK_SIZE = 50; // Optimal for Neon Database
 
-    for (let i = 0; i < parseResult.data.length; i++) {
-      const guestRow = parseResult.data[i];
+    // Process in chunks for better performance
+    for (let i = 0; i < parseResult.data.length; i += CHUNK_SIZE) {
+      const chunk = parseResult.data.slice(i, i + CHUNK_SIZE);
+
+      // Prepare chunk data
+      const chunkData: GuestCreateRequest[] = chunk.map((guestRow) => ({
+        tenant_id: tenantId,
+        name: guestRow.name.trim(),
+        relationship: guestRow.relationship.trim(),
+        attendance: guestRow.attendance as 'yes' | 'no' | 'maybe',
+        message: guestRow.message?.trim() || undefined,
+      }));
+
       try {
-        const createData: GuestCreateRequest = {
-          tenant_id: tenantId,
-          name: guestRow.name.trim(),
-          relationship: guestRow.relationship.trim(),
-          attendance: guestRow.attendance as 'yes' | 'no' | 'maybe',
-          message: guestRow.message?.trim() || undefined,
-        };
+        // Try bulk insert for the entire chunk (happy path)
+        await guestRepository.bulkCreate(chunkData);
 
-        await guestRepository.create(createData);
-        successRows.push({
-          name: guestRow.name,
-          relationship: guestRow.relationship,
-          attendance: guestRow.attendance,
-          message: guestRow.message || '',
-        });
+        // If successful, add all rows to success
+        successRows.push(
+          ...chunk.map((row) => ({
+            name: row.name,
+            relationship: row.relationship,
+            attendance: row.attendance,
+            message: row.message || '',
+          }))
+        );
       } catch (error: any) {
-        console.error('Error importing guest row:', error);
-        failedRows.push({
-          name: guestRow.name,
-          relationship: guestRow.relationship,
-          attendance: guestRow.attendance,
-          message: guestRow.message || '',
-          error: error.message || 'Unknown error',
-        });
+        console.error(
+          'Chunk bulk insert failed, falling back to individual inserts:',
+          error
+        );
+
+        // Fallback: Insert each row individually to identify specific failures
+        for (let j = 0; j < chunk.length; j++) {
+          const guestRow = chunk[j];
+          try {
+            const createData: GuestCreateRequest = {
+              tenant_id: tenantId,
+              name: guestRow.name.trim(),
+              relationship: guestRow.relationship.trim(),
+              attendance: guestRow.attendance as 'yes' | 'no' | 'maybe',
+              message: guestRow.message?.trim() || undefined,
+            };
+
+            await guestRepository.create(createData);
+            successRows.push({
+              name: guestRow.name,
+              relationship: guestRow.relationship,
+              attendance: guestRow.attendance,
+              message: guestRow.message || '',
+            });
+          } catch (rowError: any) {
+            console.error('Error importing individual guest row:', rowError);
+            failedRows.push({
+              name: guestRow.name,
+              relationship: guestRow.relationship,
+              attendance: guestRow.attendance,
+              message: guestRow.message || '',
+              error: rowError.message || 'Unknown error',
+            });
+          }
+        }
       }
     }
 

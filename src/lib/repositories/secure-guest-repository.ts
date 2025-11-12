@@ -116,6 +116,90 @@ export class SecureGuestRepository {
   }
 
   /**
+   * Bulk create guests with tenant isolation (optimized for imports)
+   */
+  async bulkCreate(guestsData: GuestCreateRequest[]): Promise<Guest[]> {
+    // Validate access permissions
+    const accessValidation = validateTenantAccess(
+      this.securityContext,
+      'write'
+    );
+    if (!accessValidation.isValid) {
+      throw new Error(
+        `${accessValidation.error!.code}: ${accessValidation.error!.message}`
+      );
+    }
+
+    if (guestsData.length === 0) {
+      return [];
+    }
+
+    // Validate all tenant IDs are the same
+    const tenantId = guestsData[0].tenant_id;
+    const allSameTenant = guestsData.every((g) => g.tenant_id === tenantId);
+    if (!allSameTenant) {
+      throw new Error(
+        `${TenantErrorCode.VALIDATION_ERROR}: All guests must belong to the same tenant`
+      );
+    }
+
+    // Validate tenant ID
+    const tenantIdValidation = validateTenantId(tenantId);
+    if (!tenantIdValidation.isValid) {
+      throw new Error(
+        `${tenantIdValidation.error!.code}: ${tenantIdValidation.error!.message}`
+      );
+    }
+
+    try {
+      // Verify tenant exists and is active
+      const tenantCheck = await sql`
+        SELECT id FROM tenants 
+        WHERE id = ${tenantId}
+      `;
+
+      if (tenantCheck.length === 0) {
+        throw new Error(
+          `${TenantErrorCode.TENANT_NOT_FOUND}: Tenant not found or inactive`
+        );
+      }
+
+      // Build arrays for bulk insert using PostgreSQL UNNEST
+      const sanitizedGuests = guestsData.map((guest) =>
+        sanitizeQueryParams(guest)
+      );
+
+      const tenantIds = sanitizedGuests.map((g) => g.tenant_id);
+      const names = sanitizedGuests.map((g) => g.name);
+      const relationships = sanitizedGuests.map((g) => g.relationship);
+      const attendances = sanitizedGuests.map((g) => g.attendance);
+      const messages = sanitizedGuests.map((g) => g.message || null);
+
+      // Use UNNEST to insert multiple rows efficiently
+      const result = await sql`
+        INSERT INTO guests (
+          tenant_id, name, relationship, attendance, message
+        )
+        SELECT * FROM UNNEST(
+          ${tenantIds}::int[],
+          ${names}::text[],
+          ${relationships}::text[],
+          ${attendances}::text[],
+          ${messages}::text[]
+        )
+        RETURNING *
+      `;
+
+      return result as Guest[];
+    } catch (error: any) {
+      if (error.message.includes(TenantErrorCode.TENANT_NOT_FOUND)) {
+        throw error;
+      }
+      throw new Error(`${TenantErrorCode.DATABASE_ERROR}: ${error.message}`);
+    }
+  }
+
+  /**
    * Find guest by ID with tenant isolation
    */
   async findById(id: number, tenantId: number): Promise<Guest | null> {
